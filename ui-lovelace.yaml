@@ -1,0 +1,851 @@
+button_card_templates:
+  !include_dir_merge_named button_card_templates
+
+views:
+  - type: custom:grid-layout
+    title: Home
+    layout:
+      #default
+      margin: 0
+      grid-gap: var(--custom-layout-card-padding)
+      grid-template-columns: repeat(4, 1fr) 0
+      grid-template-rows: 0 repeat(2, fit-content(100%)) 0fr
+      grid-template-areas: |
+        "sidebar  .           .       .       ."
+        "sidebar  maison  temperatures  porte  ."
+        "sidebar  sports       salon  lumiere   ."
+        "sidebar  footer      footer  footer  ."
+      mediaquery:
+        #phone
+        "(max-width: 800px)":
+          grid-gap: calc(var(--custom-layout-card-padding) * 1.7)
+          grid-template-columns: 0 repeat(2, 1fr) 0
+          grid-template-rows: 0 repeat(5, fit-content(100%)) 0fr
+          grid-template-areas: |
+            ".  .           .        ."
+            ".  sidebar     sidebar  ."
+            ".  salon  porte   ."
+            ".  maison      temperatures   ."
+            ".  sports       lumiere    ."
+            ".  footer      footer   ."
+            ".  .           .        ."
+        #portrait
+        "(max-width: 1200px)":
+          grid-gap: var(--custom-layout-card-padding)
+          grid-template-columns: repeat(3, 1fr) 0
+          grid-template-rows: 0 repeat(3, fit-content(100%)) 0fr
+          grid-template-areas: |
+            "sidebar  .           .       ."
+            "sidebar  salon  porte  ."
+            "sidebar  maison      temperatures  ."
+            "sidebar  sports       lumiere   ."
+            "sidebar  footer      footer  ."
+            "sidebar  .           .       ."
+    cards:
+
+      #extra_styles fix, do not remove
+      #also warn if theme is not set
+
+      - type: custom:button-card
+        view_layout:
+          grid-area: 1 / 2 / 2 / 5
+        name: SET THEME TO "tablet" IN PROFILE
+        tap_action:
+          action: navigate
+          navigation_path: /profile
+        styles:
+          card:
+            - display: >
+                [[[
+                  return hass.themes.theme === 'tablet'
+                      ? 'none'
+                      : 'initial';
+                ]]]
+          name:
+            - z-index: 1
+            - overflow: visible
+            - color: red
+            - font-weight: bolder
+            - font-size: xxx-large
+            - background: yellow
+
+      #################################################
+      #                                               #
+      #                    SIDEBAR                    #
+      #                                               #
+      #################################################
+
+      - type: vertical-stack
+        view_layout:
+          grid-area: sidebar
+        cards:
+
+          - type: custom:button-card
+            entity: sensor.template_sidebar
+            template: sidebar
+            
+          - type: grid
+            square: true
+            cards:
+             - type: conditional
+               conditions:
+                 - entity: sensor.79_weather_alert
+                   state_not: 'unknown'
+               card:
+                 type: custom:button-card
+                 entity: sensor.79_weather_alert
+                 name: Alerte Météo
+                 icon: mdi:weather-cloudy-alert
+                 show_state: true
+            
+             - type: conditional
+               conditions:
+                 - entity: sensor.saint_martin_de_saint_maixent_next_rain
+                   state_not: 'unknown'
+               card:
+                type: custom:button-card
+                show_icon: true
+                show_name: false
+                tap_action:
+                  action: none
+                entity: sensor.saint_martin_de_saint_maixent_next_rain
+                icon: mdi:weather-pouring
+                color_type: icon
+                state:
+                  - value: unknown
+                    operator: '!='
+                    color: '#fffd54'
+                hold_action:
+                  action: none
+                name: Pluie dans l'heure
+                show_state: false
+                  
+             - type: conditional
+               conditions:
+                 - entity: sensor.pollens_79
+                   state_not: 'unknown'
+               card:
+                 type: custom:button-card
+                 entity: sensor.pollens_79
+                 name: Pollens
+                 icon: mdi:flower-pollen
+                 color_type: icon
+                 show_name: false
+                 show_state: false
+                 state:
+                   - value: très faible
+                     operator: '=='
+                     color: '#75f94c'
+                   - value: faible
+                     operator: '=='
+                     color: '#377d22'
+                   - value: moyen
+                     operator: '=='
+                     color: '#fffd54'
+                   - value: élevé
+                     operator: '=='
+                     color: '#ef8641'
+                   - value: très élevé
+                     operator: '=='
+                     color: '#ea3522'
+                 tap_action:
+                   !include popup/sidebar_pollens.yaml                  
+            columns: 3 
+
+      #################################################
+      #                                               #
+      #                  SALON                        #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Salon
+        view_layout:
+          grid-area: salon
+        columns: 2
+        cards:
+
+          - type: custom:button-card
+            entity: media_player.xbox_salon
+            name: Xbox
+            template:
+              - media
+              - icon_xrotate
+
+          - type: custom:button-card
+            entity: media_player.salon
+            name: Apple TV
+            template:
+              - media
+              - icon_apple_tv
+
+          - type: custom:button-card
+            entity: media_player.samsung_7_series_55
+            name: Tv
+            state_display: >
+              [[[
+                if (variables.state === 'playing') {
+                    return 'Playing';
+                }
+                if (variables.state === true) {
+                    return variables.translate_unknown;
+                }
+              ]]]
+            template:
+              - base
+              - icon_tv
+              - loader
+
+          - type: custom:button-card
+            entity: remote.harmony_hub
+            name: Activité
+            template:
+              - base
+              - icon_hue
+              - loader
+
+      #################################################
+      #                                               #
+      #                    Maison                     #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Maison
+        view_layout:
+          grid-area: maison
+        columns: 2
+        cards:
+          - type: "custom:button-card"
+            entity: alarm_control_panel.alarmo
+            show_entity_picture: false
+            show_state: false
+            show_name: true
+            show_icon: false
+            aspect_ratio: 1/1
+            name: Alarme          
+            tap_action: 
+              card_bounce: |
+                [[[
+                  // add animation
+                  if (this.getElementsByTagName("style").length === 0) {
+            
+                        // phone condition
+                        let mq = window.matchMedia('(max-width: 800px)').matches;
+            
+                        let style = document.createElement('style');
+            
+                        style.innerHTML = `
+                            @keyframes card_bounce {
+                                0%   { transform: scale(1); }
+                                10%  { transform: scale(${ mq ? '0.92' : '0.94' }); }
+                                25%  { transform: scale(1); }
+                                30%  { transform: scale(${ mq ? '0.96' : '0.98' }); }
+                                100% { transform: scale(1); }
+                            }
+                        `;
+            
+                        this.appendChild(style);
+                    }
+            
+                    // duration
+                    let duration = 800;
+            
+                    // animate
+                    this.style.animation = `card_bounce ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+            
+                    // reset
+                    window.setTimeout(() => { this.style.animation = "none"; }, duration + 100)
+                  ]]]
+              action: more-info
+              haptic: medium
+            custom_fields:
+              icon: <ha-icon icon='mdi:shield-off-outline'></ha-icon> 
+            state:
+              - value: 'arming'
+                icon: <ha-icon icon='mdi:shield-off-outline'></ha-icon>
+                styles:
+                  card:
+                    - animation: blink 3s ease infinite
+                    - background-color: '#FAA255'
+              - value: 'armed_away'
+                icon: <ha-icon icon='mdi:shield-lock'></ha-icon>
+                styles:
+                  card:
+                    - background-color: '#BA494B'
+              - value: 'armed_home'
+                icon: <ha-icon icon='mdi:shield-account'></ha-icon>
+                styles:
+                  card:
+                    - background-color: '#F0C438'
+              - value: 'armed_night'
+                icon: <ha-icon icon='mdi:shield-home'></ha-icon>
+                styles:
+                  card:
+                    - background-color: '#66C6F2'
+              - value: 'armed_custom_bypass'
+                icon: <ha-icon icon='mdi:security'></ha-icon>
+                styles:
+                  card:
+                    - background-color: '#7F7CE6'
+              - value: 'pending'
+                icon: <ha-icon icon='mdi:shield-sync'></ha-icon>
+                styles:
+                  card:
+                    - animation: blink 4s ease infinite
+                    - background-color: '#FAA255'
+              - value: 'triggered'
+                icon: <ha-icon icon='mdi:bell-ring'></ha-icon>
+                styles:
+                  card:
+                    - animation: blink 1s ease infinite
+                    - background-color: '#f70d1a'
+              - value: 'unavailable'
+                icon: <ha-icon icon='mdi:shield-alert'></ha-icon>
+                styles:
+                  card:
+                    - animation: blink 10s ease infinite
+                    - background-color: '#657c80'
+              - value: 'unknown'
+                icon: <ha-icon icon='mdi:shield-alert'></ha-icon>
+                styles:
+                  card:
+                    - animation: blink 10s ease infinite
+                    - background-color: '#6f8499'
+            styles:
+              container: 
+                - text-align: left !important;
+                - z-index: 1;
+              grid:
+                - grid-template-areas: |
+                    "icon  circle"
+                    "n     n"
+                    "s     s"
+                - grid-template-columns: repeat(2, 1fr)
+                - grid-template-rows: auto repeat(2, min-content)
+                - gap: 1.3%
+                - align-items: start
+                - will-change: transform
+              name:
+                - justify-self: start
+                - line-height: 121%
+                - font-size: var(--button-card-font-size);
+                - font-weight: var(--button-card-font-weight);
+                - letter-spacing: var(--button-card-letter-spacing);
+              state:
+                - justify-self: start
+                - line-height: 115%
+                - font-size: var(--button-card-font-size);
+                - font-weight: var(--button-card-font-weight);
+                - letter-spacing: var(--button-card-letter-spacing);
+              state::first-letter: 
+                - text-transform: uppercase;
+              card:
+                - padding: 10.9% 9.9% 8.9% 10.9%;
+                - border-radius: var(--button-card-border-radius)
+                - border-width: 0
+                - -webkit-tap-highlight-color: rgba(0,0,0,0)
+                - transition: none
+                - --mdc-ripple-color: >
+                    [[[
+                      return variables.state_on
+                          ? 'rgb(0, 0, 0)'
+                          : '#97989c';
+                    ]]]
+                - color: >
+                    [[[
+                      return variables.state_on
+                          ? '#4b5254'
+                          : '#97989c';
+                    ]]]
+                - background-color: >
+                    [[[
+                      return variables.state_on
+                          ? 'rgba(255, 255, 255, 0.85)'
+                          : 'rgba(115, 115, 115, 0.25)';
+                    ]]]
+
+
+          - type: "custom:button-card"
+            entity: sensor.number_volets_maison
+            show_entity_picture: false
+            show_state: false
+            show_name: true
+            show_icon: false
+            aspect_ratio: 1/1
+            name: Volets 
+            custom_fields:
+              icon: <ha-icon icon='mdi:window-shutter-auto'></ha-icon> 
+            tap_action: 
+              !include popup/volets.yaml
+            styles:
+              container: 
+                - text-align: left !important;
+                - z-index: 1;
+              grid:
+                - grid-template-areas: |
+                    "icon  circle"
+                    "n     n"
+                    "s     s"
+                - grid-template-columns: repeat(2, 1fr)
+                - grid-template-rows: auto repeat(2, min-content)
+                - gap: 1.3%
+                - align-items: start
+                - will-change: transform
+              name:
+                - justify-self: start
+                - line-height: 121%
+                - font-size: var(--button-card-font-size);
+                - font-weight: var(--button-card-font-weight);
+                - letter-spacing: var(--button-card-letter-spacing);
+              state:
+                - justify-self: start
+                - line-height: 115%
+                - font-size: var(--button-card-font-size);
+                - font-weight: var(--button-card-font-weight);
+                - letter-spacing: var(--button-card-letter-spacing);
+              card:
+                - padding: 10.9% 9.9% 8.9% 10.9%;
+                - border-radius: var(--button-card-border-radius)
+                - border-width: 0
+                - -webkit-tap-highlight-color: rgba(0,0,0,0)
+                - transition: none
+                - --mdc-ripple-color: >
+                    [[[
+                      return variables.state_on
+                          ? 'rgb(0, 0, 0)'
+                          : '#97989c';
+                    ]]]
+                - color: >
+                    [[[
+                      return variables.state_on
+                          ? '#4b5254'
+                          : '#97989c';
+                    ]]]
+                - background-color: >
+                    [[[
+                      return variables.state_on
+                          ? 'rgba(255, 255, 255, 0.85)'
+                          : 'rgba(115, 115, 115, 0.25)';
+                    ]]]
+    
+          - type: "custom:button-card"
+            entity: sensor.next_poubelle
+            show_entity_picture: false
+            show_state: false
+            show_name: true
+            show_icon: false
+            name: Poubelle
+            aspect_ratio: 1/1
+            custom_fields:
+              icon: |
+                [[[
+                    if (states['sensor.next_poubelle'].state == 'verte' && entity.attributes.hjours == "Aujourd'hui")
+                      return `<ha-icon
+                icon="mdi:delete"
+                style="color: green; ">
+                </ha-icon>`
+                    if (states['sensor.next_poubelle'].state == 'jaune' && entity.attributes.hjours == "Aujourd'hui")
+                      return `<ha-icon
+                icon="mdi:delete"
+                style="color: yellow; ">
+                </ha-icon>`                
+                    return `<ha-icon
+                icon="mdi:delete"
+                style="color: white;">
+                </ha-icon>`;
+                  ]]]
+            tap_action: 
+              action: none
+            styles:
+              container: 
+                - text-align: left !important;
+                - z-index: 1;
+              grid:
+                - grid-template-areas: |
+                    "icon  circle"
+                    "n     n"
+                    "s     s"
+                - grid-template-columns: repeat(2, 1fr)
+                - grid-template-rows: auto repeat(2, min-content)
+                - gap: 1.3%
+                - align-items: start
+                - will-change: transform
+              name:
+                - justify-self: start
+                - line-height: 121%
+                - font-size: var(--button-card-font-size);
+                - font-weight: var(--button-card-font-weight);
+                - letter-spacing: var(--button-card-letter-spacing);
+              state:
+                - justify-self: start
+                - line-height: 115%
+                - font-size: var(--button-card-font-size);
+                - font-weight: var(--button-card-font-weight);
+                - letter-spacing: var(--button-card-letter-spacing);
+              card:
+                - padding: 10.9% 9.9% 8.9% 10.9%;
+                - border-radius: var(--button-card-border-radius)
+                - border-width: 0
+                - -webkit-tap-highlight-color: rgba(0,0,0,0)
+                - transition: none
+                - --mdc-ripple-color: >
+                    [[[
+                      return variables.state_on
+                          ? 'rgb(0, 0, 0)'
+                          : '#97989c';
+                    ]]]
+                - color: >
+                    [[[
+                      return variables.state_on
+                          ? '#4b5254'
+                          : '#97989c';
+                    ]]]
+                - background-color: >
+                    [[[
+                      return variables.state_on
+                          ? 'rgba(255, 255, 255, 0.85)'
+                          : 'rgba(115, 115, 115, 0.25)';
+                    ]]]
+
+
+
+          - type: "custom:button-card"
+            entity: sensor.cuve_volume
+            name: Cuve Eau
+            show_state: false
+            template:
+              - base_no_action
+              - circle
+            variables:
+              circle_input: >
+                [[[
+                  if (states['sensor.cuve_volume'].state != 'unavailable') {
+                  let volume = (entity.attributes.volume_percent).toString();
+                  if (volume) return volume;
+                  }
+                ]]]              
+              circle_input_unit: '%'
+            custom_fields:
+              icon: <ha-icon icon='mdi:water'></ha-icon> 
+
+      #################################################
+      #                                               #
+      #                    PORTE                      #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Ouvertures
+        view_layout:
+          grid-area: porte
+        columns: 1
+        cards:
+          - type: custom:swipe-card
+            parameters:
+              speed: 550
+              spaceBetween: 40
+              threshold: 5
+            cards:
+              - type: grid
+                columns: 2
+                cards:
+                  - type: custom:button-card
+                    entity: binary_sensor.detecteur_ouverture_cuisine_contact
+                    name: Cuisine
+                    template:
+                      - base_no_action
+                    custom_fields:
+                      icon: <ha-icon icon='mdi:door-sliding'></ha-icon>                     
+          
+                  - type: custom:button-card
+                    entity: binary_sensor.detecteur_ouverture_salon_contact
+                    name: Salon
+                    template:
+                      - base_no_action
+                    custom_fields:
+                      icon: <ha-icon icon='mdi:door-sliding'></ha-icon>  
+          
+                  - type: custom:button-card
+                    entity: binary_sensor.detecteur_ouverture_sejour_droite_contact
+                    name: Salle à manger droite
+                    template:
+                      - base_no_action
+                    custom_fields:
+                      icon: <ha-icon icon='mdi:door-sliding'></ha-icon>  
+          
+                  - type: custom:button-card
+                    entity: binary_sensor.detecteur_ouverture_sejour_gauche_contact
+                    name: Salle à manger gauche
+                    template:
+                      - base_no_action
+                    custom_fields:
+                      icon: <ha-icon icon='mdi:door-sliding'></ha-icon>  
+                      
+              - type: grid
+                columns: 2
+                cards:    
+                  - type: custom:button-card
+                    entity: binary_sensor.detecteur_ouverture_sejour_gauche_contact
+                    name: Salle à manger Porte
+                    template:
+                      - base_no_action
+                    custom_fields:
+                      icon: <ha-icon icon='mdi:door'></ha-icon>  
+    
+                  - type: custom:button-card
+                    entity: binary_sensor.detecteur_ouverture_sejour_gauche_contact
+                    name: Porte service Garage
+                    template:
+                      - base_no_action
+                    custom_fields:
+                      icon: <ha-icon icon='mdi:door'></ha-icon>  
+
+      #################################################
+      #                                               #
+      #                     SPORTS                    #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Sports
+        view_layout:
+          grid-area: sports
+        columns: 1
+        cards:
+
+          - type: custom:swipe-card
+            parameters:
+              speed: 550
+              spaceBetween: 40
+              threshold: 5
+            cards:
+
+              - type: horizontal-stack
+                cards:
+
+                  - type: custom:formulaone-card
+                    card_type: next_race
+                    only_show_date: true
+                    image_clickable: false
+                    date_locale: fr
+                    template:
+                      - base
+                    actions:
+                      tap_action:
+                        !include popup/f1.yaml
+
+              - type: horizontal-stack
+                cards:
+                  - type: 'custom:teamtracker-card'
+                    entity: sensor.team_tracker_gs
+                    outline: true
+                    outline_color: '#ffe500'
+
+              - type: horizontal-stack
+                cards:
+                  - type: 'custom:teamtracker-card'
+                    entity: sensor.team_tracker_lal
+                    outline: true
+                    outline_color: '#ffe500'
+
+      #################################################
+      #                                               #
+      #                    TEMPERATURE                #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Températures
+        view_layout:
+          grid-area: temperatures
+        columns: 2
+        cards:
+
+          - type: custom:button-card
+            entity: sensor.detecteur_carport_air_temperature
+            name: Carport
+            tap_action:
+              !include popup/temp_carport.yaml
+            template:
+              - base
+              - icon_thermometre
+
+          - type: custom:button-card
+            entity: sensor.detecteur_fumee_cellier_air_temperature
+            name: Cellier
+            tap_action:
+              !include popup/temp_cellier.yaml 
+            template:
+              - base
+              - icon_thermometre
+
+          - type: custom:button-card
+            entity: sensor.detecteur_fumee_entree_air_temperature
+            name: Entrée
+            tap_action:
+              !include popup/temp_entree.yaml
+            template:
+              - base
+              - icon_thermometre
+
+          - type: custom:button-card
+            entity: sensor.detecteur_vibration_cave_device_temperature
+            name: Garage
+            tap_action:
+              !include popup/temp_garage.yaml
+            template:
+              - base
+              - icon_thermometre
+
+      #################################################
+      #                                               #
+      #                     LUMIERES.                 #
+      #                                               #
+      #################################################
+
+      - type: grid
+        title: Lumières
+        view_layout:
+          grid-area: lumiere
+        columns: 2
+        cards:
+
+          - type: custom:button-card
+            entity: light.eclairage_carport
+            name: Carport
+            template:
+              - base
+              - icon_hue
+              - loader
+
+          - type: custom:button-card
+            entity: light.wiz_rgbww_tunable_0938f5
+            name: Arthur
+            template:
+              - base
+              - icon_hue
+              - loader
+
+
+      #################################################
+      #                                               #
+      #                    FOOTER                     #
+      #                                               #
+      #################################################
+
+      - type: horizontal-stack
+        view_layout:
+          grid-area: footer
+        cards:
+
+          - type: custom:button-card
+            entity: sensor.unavailable_entities
+            name: >
+              <ha-icon icon="mdi:check-network"></ha-icon> Status
+            tap_action:
+              !include popup/footer_status.yaml
+            variables:
+              notify: >
+                [[[
+                  return parseInt(entity?.state);
+                ]]]
+            template: footer
+
+          - type: custom:button-card
+            name: >
+              <ha-icon icon="mdi:nas"></ha-icon> Serveurs
+            tap_action:
+              !include popup/footer_nas.yaml
+            triggers_update:
+              - update.srvnas_mise_a_jour_dsm
+              - sensor.srvnas_volume_1_etat
+              - binary_sensor.srvnas_etat_de_securite
+              - sensor.srvnas_volume_1_volume_utilise
+              - binary_sensor.home_assistant_website_update_available
+            variables:
+              notify: >
+                [[[
+                  let id = this._config.triggers_update;
+                  if (id.every(e => states[e]))
+                      return states[id[0]].state === 'on'
+                          ? 1
+                          : states[id[1]].state === 'attention' ||
+                            states[id[2]].state === 'on' ||
+                            parseFloat(states[id[3]].state) >= 85 ||
+                            states[id[4]].state === 'on';
+                ]]]
+            template: footer
+
+          - type: custom:button-card
+            name: >
+              <ha-icon icon="mdi:battery"></ha-icon> Batteries
+            tap_action:
+              !include popup/footer_batterie.yaml
+            triggers_update:
+              - sensor.detecteur_ouverture_sejour_gauche_battery
+              - sensor.clavier_alarme_battery
+              - sensor.detecteur_carport_battery_level
+              - sensor.detecteur_fumee_cellier_battery_level
+              - sensor.detecteur_fumee_entree_battery_level
+              - sensor.detecteur_ouverture_cuisine_battery
+              - sensor.detecteur_ouverture_salon_battery
+              - sensor.detecteur_ouverture_sejour_droite_battery
+              - sensor.detecteur_vibration_cave_battery
+            variables:
+              notify: >
+                [[[
+                  let id = this._config.triggers_update;
+                  if (id.every(e => states[e]))
+                      return states[id[0]].state <= 25
+                          ? 1
+                          : states[id[1]].state <= 25;
+                            states[id[2]].state <= 25;
+                            states[id[3]].state <= 25;
+                            states[id[4]].state <= 25;
+                            states[id[5]].state <= 25;
+                            states[id[6]].state <= 25;
+                            states[id[7]].state <= 25;
+                            states[id[8]].state <= 25;
+                ]]]
+            template: footer
+
+          - type: custom:button-card
+            name: >
+              <ha-icon icon="mdi:chart-line-variant"></ha-icon> Conso Elec.
+            tap_action:
+              !include popup/footer_history.yaml
+            template: footer
+
+
+          - type: custom:button-card
+            name: >
+              <ha-icon icon="mdi:router-wireless"></ha-icon> Réseaux
+            tap_action:
+              !include popup/footer_router.yaml
+            triggers_update:
+              - update.unifi_dream_machine
+              - binary_sensor.template_udm_internet
+            variables:
+              notify: >
+                [[[
+                  let id = this._config.triggers_update;
+                  if (id.every(e => states[e]))
+                      return states[id[0]].state === 'on'
+                          ? 1
+                          : states[id[1]].state === 'off';
+                ]]]
+            template: footer
+
+          - type: custom:button-card
+            entity: sensor.available_updates
+            name: >
+              <ha-icon icon="mdi:update"></ha-icon> Updates
+            tap_action:
+              !include popup/footer_updates.yaml
+            variables:
+              notify: >
+                [[[
+                  return parseInt(entity?.state);
+                ]]]
+            template: footer

@@ -1,0 +1,39 @@
+blueprint:
+  name: Suspend Volet
+  description: Gestion suspend Volet Auto (quand appui sur interrupteur)
+  domain: automation
+  input:
+    cover_target:
+      name: Volet
+      selector:
+        entity:
+          filter:
+            domain: cover
+    input_select_mode_volet:
+      name: Input select mode pour le volet à gérer
+      selector:
+        entity:
+          domain: input_select
+mode: restart
+max_exceeded: silent
+
+variables:
+  select_mode_volet: !input input_select_mode_volet
+  
+trigger:
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: !input cover_target
+action:
+  - if:
+      - condition: template
+        value_template: >-
+          {{ not is_state('select_mode_volet',
+          'Desactive') }}
+    then:
+      - service: input_select.select_option
+        data:
+          option: Manuel
+        target:
+          entity_id: !input input_select_mode_volet

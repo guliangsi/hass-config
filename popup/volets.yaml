@@ -1,0 +1,507 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Volets
+    style: >
+      --popup-max-width: calc(385px + 770px);
+      --ha-card-border-radius: 0;
+    card_mod:
+      style:
+        layout-card:
+          $grid-layout$:
+            # card divider border
+            .: |
+              #root {
+                  margin: -24px 0 !important;
+              }
+            hui-entities-card:
+              $: |
+                .card-content {
+                  padding: var(--tablet-popup-content-padding);
+                  padding-bottom: 0.8em;
+                }
+                ha-card {
+                  border-right: 1.5px solid rgba(0, 0, 0, 0.2);
+                  border-radius: 0;
+                  transition: none;
+                }
+                /* portrait */
+                @media screen and (max-width: 1200px) {
+                  ha-card {
+                    border-right: none;
+                    border-bottom: 1.5px solid rgba(0, 0, 0, 0.2);
+                  }
+                }
+              $hui-horizontal-stack-card:
+                # horizontal bottom buttons
+                $: |
+                  #root {
+                    justify-content: space-evenly;
+                    margin-top: 1.7em;
+                    max-width: 82vw; /* iphonex */
+                  }
+    content:
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        margin: 0
+        grid-template-columns: 385px 770px 
+        grid-template-rows: 1fr
+        grid-template-areas: |
+          "meteo volets"
+        mediaquery:
+          #portrait
+          "(max-width: 1200px)":
+            grid-template-columns: 1fr
+            grid-template-rows: repeat(3, 1fr)
+            grid-template-areas: |
+              "meteo"
+              "volets"
+      cards:
+
+        ### CONTRAINTES METEO
+
+        - type: entities
+          view_layout:
+            grid-area: meteo
+          title: Contraintes Météo
+          show_header_toggle: false
+          card_mod:
+            class: header
+          entities:
+            - type: divider
+            - entity: sun.sun
+              name: Lever Soleil
+              type: attribute
+              attribute: next_rising
+              format: datetime
+              prefix: le  
+            - entity: sun.sun
+              name: Coucher Soleil
+              type: attribute
+              attribute: next_setting
+              format: datetime
+              prefix: le      
+            - type: divider        
+            - entity: sensor.detecteur_carport_air_temperature
+            - entity: sensor.temp_max_to_day
+              name: Température Max aujourd'hui            
+            - entity: input_number.vr_sun_hot
+            - entity: binary_sensor.vr_sun_hot
+            - type: divider
+            - entity: sensor.sunelevation
+              icon: mdi:weather-sunset-up
+            - entity: sensor.sunazimuth
+              icon: mdi:sun-compass
+            - entity: binary_sensor.soleil_volets_est
+              name: Soleil sur volets Est
+            - entity: binary_sensor.soleil_volets_sud
+              name: Soleil sur volets Sud
+            - entity: binary_sensor.soleil_volets_sud_ouest
+              name: Soleil sur volets Sud/Ouest (Porte Salle à Manger)
+            - entity: binary_sensor.soleil_volets_chambres_sud
+              name: Soleil sur volets Sud (chambres enfants)
+            - entity: binary_sensor.soleil_volets_ouest
+              name: Soleil sur volets Ouest
+            - entity: binary_sensor.soleil_volets_nord
+              name: Soleil sur volets Nord
+          state_color: true    
+
+
+        ### GESTION MODES VOLETS
+          
+        - type: entities
+          view_layout:
+            grid-area: volets
+          entities:
+            - entity: input_select.modevolets
+            - type: custom:text-divider-row
+              text: Pièce de vie
+            - entity: input_boolean.mode_jour_pv
+              name: Mode Jour              
+            - entity: cover.volet_cuisine
+              type: custom:multiple-entity-row
+              name: Cuisine
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_cuisine
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_cuisine
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_cuisine
+                - entity: input_select.modevolet_cuisine
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_cuisine
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - entity: cover.volet_salle_a_manger
+              type: custom:multiple-entity-row
+              name: Baie Salle à manger
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_salle_a_manger
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_salle_a_manger
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_salle_a_manger
+                - entity: input_select.modevolet_salle_a_manger
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_salle_a_manger
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - entity: cover.volet_porte_salon
+              type: custom:multiple-entity-row
+              name: Porte Salle à manger
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_porte_salon
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_porte_salon
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_porte_salon
+                - entity: input_select.modevolet_porte_salon
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_porte_salon
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - entity: cover.volet_salon
+              type: custom:multiple-entity-row
+              name: Salon
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_salon
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_salon
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_salon
+                - entity: input_select.modevolet_salon
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_salon
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - entity: cover.volet_cellier
+              type: custom:multiple-entity-row
+              name: Cellier
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_cellier
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_cellier
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_cellier
+                - entity: input_select.modevolet_cellier
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_cellier
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - type: custom:text-divider-row
+              text: Coin Enfants
+            - entity: input_boolean.mode_jour_coin_enfants
+              name: Mode Jour               
+            - entity: cover.volet_salle_de_bain
+              type: custom:multiple-entity-row
+              name: Salle de bain
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_salle_de_bain
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_salle_de_bain
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_salle_de_bain
+                - entity: input_select.modevolet_salle_de_bain
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_salle_de_bain
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - entity: cover.volet_chambre_mathis
+              type: custom:multiple-entity-row
+              name: Chambre Mathis
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_mathis
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_mathis
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_mathis
+                - entity: input_select.modevolet_chambre_mathis
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_chambre_mathis
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - entity: cover.volet_chambre_arthur
+              type: custom:multiple-entity-row
+              name: Chambre Arthur
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_arthur
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_arthur
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_arthur
+                - entity: input_select.modevolet_chambre_arthur
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_chambre_arthur
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - entity: cover.volet_chambre_thibault
+              type: custom:multiple-entity-row
+              name: Chambre Thibault
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_thibault
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_thibault
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_thibault
+                - entity: input_select.modevolet_chambre_thibault
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_chambre_thibault
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - type: custom:text-divider-row
+              text: Suite Parentale
+            - entity: input_boolean.mode_jour_suite_parentale
+              name: Mode Jour               
+            - entity: cover.volet_salle_eau
+              type: custom:multiple-entity-row
+              name: Salle de bain
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_salle_eau
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_salle_eau
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_salle_eau
+                - entity: input_select.modevolet_salle_eau
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_salle_eau
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+            - entity: cover.volet_chambre_parentale
+              type: custom:multiple-entity-row
+              name: Chambre Parentale
+              show_state: false
+              entities:
+                - icon: mdi:arrow-up-box
+                  tap_action:
+                    action: call-service
+                    service: cover.open_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_parentale
+                - icon: mdi:checkbox-blank
+                  tap_action:
+                    action: call-service
+                    service: cover.stop_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_parentale
+                - icon: mdi:arrow-down-box
+                  tap_action:
+                    action: call-service
+                    service: cover.close_cover
+                    service_data:
+                      entity_id: cover.volet_chambre_parentale
+                - entity: input_select.modevolet_chambre_parentale
+                  name: false
+                  tap_action:
+                    action: more-info
+                - entity: input_select.homemodevolet_chambre_parentale
+                  name: false
+                  tap_action:
+                    action: more-info
+              secondary_info:
+                attribute: current_position
+                unit: '%'
+          state_color: false
+
+  

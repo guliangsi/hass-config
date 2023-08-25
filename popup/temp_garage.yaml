@@ -1,0 +1,28 @@
+action: fire-dom-event
+browser_mod:
+  command: popup
+  title: Thermomètre Garage
+  card:
+    type: custom:stack-in-card
+    cards:
+      - type: entities
+        state_color: true
+        entities:
+          - entity: sensor.detecteur_vibration_cave_device_temperature
+          - entity: sensor.detecteur_vibration_cave_battery
+      - type: custom:mini-graph-card
+        entities:
+          - color: '#385581'
+            entity: sensor.detecteur_vibration_cave_device_temperature
+        align_state: left
+        line_width: 4
+        height: 200
+        group: false
+        points_per_hour: 2
+        hour24: true
+        hours_to_show: 24
+        show:
+          {fill: fade, icon: false, name: false, state: true,
+          name_adaptive_color: true, labels: true, legend: true, average: true, extrema: true, points: false}
+        tap_action:
+          action:

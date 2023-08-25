@@ -1,0 +1,95 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Formule 1
+    style: >
+      --popup-max-width: calc(385px + 385px + 385px);
+      --ha-card-border-radius: 0;
+    card_mod:
+      style:
+        layout-card:
+          $grid-layout$:
+            # card divider border
+            .: |
+              #root {
+                  margin: -24px 0 !important;
+              }
+            hui-entities-card:
+              $: |
+                .card-content {
+                  padding: var(--tablet-popup-content-padding);
+                  padding-bottom: 0.8em;
+                }
+                ha-card {
+                  border-right: 1.5px solid rgba(0, 0, 0, 0.2);
+                  border-radius: 0;
+                  transition: none;
+                }
+                /* portrait */
+                @media screen and (max-width: 1200px) {
+                  ha-card {
+                    border-right: none;
+                    border-bottom: 1.5px solid rgba(0, 0, 0, 0.2);
+                  }
+                }
+              $hui-horizontal-stack-card:
+                # horizontal bottom buttons
+                $: |
+                  #root {
+                    justify-content: space-evenly;
+                    margin-top: 1.7em;
+                    max-width: 82vw; /* iphonex */
+                  }
+    content:
+      type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        margin: 0
+        grid-template-columns: 385px 385px 385px
+        grid-template-rows: 1fr
+        grid-template-areas: |
+          "results driver constructor"
+        mediaquery:
+          #portrait
+          "(max-width: 1200px)":
+            grid-template-columns: 1fr
+            grid-template-rows: repeat(3, 1fr)
+            grid-template-areas: |
+              "results"
+              "driver"
+              "constructor"
+      cards:
+
+        ### results
+
+        - type: custom:formulaone-card
+          card_type: results
+          title: Results
+          view_layout:
+            grid-area: results
+
+
+
+        ### driver
+
+        - type: custom:formulaone-card
+          view_layout:
+            grid-area: driver        
+          card_type: driver_standings
+          title: Driver Standings
+          standings:
+            show_flag: true
+            show_team: true
+            show_teamlogo: true
+
+        ### constructor
+
+        - type: custom:formulaone-card
+          view_layout:
+            grid-area: constructor        
+          card_type: constructor_standings
+          title: Constructor Standings
+          standings:
+            show_teamlogo: true
+
