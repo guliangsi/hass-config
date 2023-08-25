@@ -2,9 +2,7 @@ homeassistant:
   unit_system: metric
   country: FR
   time_zone: "Europe/Paris"
-  allowlist_external_dirs:
-    - !secret allowlist_external_dirs
-    
+  
 # Loads default set of integrations. Do not remove.
 default_config:
 
