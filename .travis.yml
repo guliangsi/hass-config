@@ -2,7 +2,7 @@ language: python
 os: linux
 dist: jammy
 python:
-  - "3.11.5"
+  - "3.11"
 before_install:
   - mv travis_secrets.yaml secrets.yaml
   - HA_VERSION=$(<.HA_VERSION)
