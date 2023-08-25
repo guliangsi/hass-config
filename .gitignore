@@ -42,3 +42,7 @@ ozw_log.txt
 
 # Development files
 custom_components/
+
+#Travis
+travis_secrets.yaml
+.travis.yaml
