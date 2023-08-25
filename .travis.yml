@@ -1,10 +1,10 @@
 language: python
 python:
-  - "3.5.3"
+  - "3.11"
 before_install:
   - mv travis_secrets.yaml secrets.yaml
   - HA_VERSION=$(<.HA_VERSION)
 install:
-  - pip3 install homeassistant==${HA_VERSION}
+  - python3 -m pip install homeassistant==${HA_VERSION}
 script:
   - hass -c . --script check_config
