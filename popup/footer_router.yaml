@@ -1,0 +1,38 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Réseaux
+    card_mod:
+      style:
+        #popup header
+        .:
+    content:
+      type: vertical-stack
+      cards:
+        - type: custom:mini-graph-card
+          name: Freebox bande pssante
+          hours_to_show: 0.5
+          points_per_hour: 900
+          line_width: 3
+          lower_bound: 0
+          icon: mdi:speedometer
+          entities:
+            - entity: sensor.freebox_download_speed
+              show_state: true
+            - entity: sensor.freebox_upload_speed
+              show_state: true
+
+
+        - type: custom:mini-graph-card
+          name: Router bande pssante
+          hours_to_show: 0.5
+          points_per_hour: 900
+          line_width: 3
+          lower_bound: 0
+          icon: mdi:speedometer
+          entities:
+            - entity: sensor.wan_download
+              show_state: true
+            - entity: sensor.wan_upload
+              show_state: true

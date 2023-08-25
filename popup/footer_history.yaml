@@ -1,0 +1,45 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Consommation Electrique
+    size: fullscreen
+    card_mod:
+      style:
+        #popup header
+        .:
+    content:
+      type: grid
+      columns: 2
+      square: false
+      cards:
+
+        - type: entities
+          show_state: false
+          entities:
+            - entity: sensor.teleinfo_base
+              type: attribute
+              name: N° compteur
+              attribute: ADCO
+            - entity: sensor.teleinfo_base
+              type: attribute
+              name: Abonnement
+              attribute: OPTARIF
+            - entity: sensor.teleinfo_base
+              name: Sensor
+            - entity: sensor.teleinfo_base
+              type: attribute
+              name: Intenisté souscrite
+              attribute: ISOUSC
+            - entity: sensor.teleinfo_base
+              type: attribute
+              name: Intenisté instantané
+              attribute: IINST
+            - entity: sensor.teleinfo_base
+              type: attribute
+              name: Intenisté max
+              attribute: IMAX
+            - entity: sensor.teleinfo_base
+              type: attribute
+              name: Puisscane apparente
+              attribute: PAPP

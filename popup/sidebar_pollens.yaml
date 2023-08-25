@@ -1,0 +1,55 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Pollens
+    card_mod:
+      style:
+        #popup header
+        .:
+    content:
+      type: custom:mod-card
+      card_mod:
+        style:
+          hui-grid-card:
+            $: |
+              button-card:nth-child(2) {
+                margin: 0.6em 0 2.1em 0.8em;
+              }
+              button-card:nth-child(4) {
+                margin: 0.6em 0 0.5em 0.8em;
+              }
+              #root {
+                grid-gap: 0 !important;
+                padding: var(--tablet-popup-content-padding);
+              }
+      card:
+        type: entity-filter
+        entities:
+          - entity: sensor.pollens_79
+            secondary_info: last-updated
+            name: Pollens Deux-Sèvres
+          - entity: sensor.pollens_79_ambroisies
+          - entity: sensor.pollens_79_armoise
+          - entity: sensor.pollens_79_aulne
+          - entity: sensor.pollens_79_bouleau
+          - entity: sensor.pollens_79_charme
+          - entity: sensor.pollens_79_chataignier
+          - entity: sensor.pollens_79_chene
+          - entity: sensor.pollens_79_cupressacees
+          - entity: sensor.pollens_79_frene
+          - entity: sensor.pollens_79_graminees
+          - entity: sensor.pollens_79_noisetier
+          - entity: sensor.pollens_79_olivier
+          - entity: sensor.pollens_79_oseille
+          - entity: sensor.pollens_79_peuplier
+          - entity: sensor.pollens_79_plantain
+          - entity: sensor.pollens_79_platane
+          - entity: sensor.pollens_79_saule
+          - entity: sensor.pollens_79_tilleul
+          - entity: sensor.pollens_79_urticacees
+        state_filter:
+          - operator: ">"
+            value: 0
+          - operator: regex
+            value: 

@@ -1,0 +1,26 @@
+sensor:
+  - name: "teleinfo.base1"
+    unique_id: teleinfo_base
+    state_topic: "maison/energy/teleinfo/tele/SENSOR"
+    value_template: '{{ value_json.TIC.BASE }}'
+    unit_of_measurement: 'Wh'
+    json_attributes_topic: "maison/energy/teleinfo/tele/SENSOR"
+    json_attributes_template: "{{ value_json.TIC | tojson }}"    
+    device_class: energy
+    state_class: total
+
+  - name: "cuve.volume"
+    unique_id: cuve_volume
+    state_topic: "maison/energy/cuve/cuve"
+    value_template: '{{ value_json.state }}'
+    payload_available: "on"
+    payload_not_available: "off"
+    json_attributes_topic: "maison/energy/cuve/cuve"
+    expire_after: 600
+    
+binary_sensor:
+  - name: "allumage_auto_carport"
+    unique_id: allumage_auto_carport
+    state_topic: "customstates/light/carport/state"
+    payload_on: "1"
+    payload_off: "0"

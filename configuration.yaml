@@ -1,0 +1,390 @@
+homeassistant:
+  unit_system: metric
+  country: FR
+  time_zone: "Europe/Paris"
+  
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  extra_module_url:
+    - /hacsfiles/lovelace-card-mod/card-mod.js
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+mqtt: !include mqtt.yaml
+
+        
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/button-card/button-card.js
+      type: module
+    - url: /hacsfiles/lovelace-layout-card/layout-card.js
+      type: module
+    - url: /hacsfiles/swipe-card/swipe-card.js
+      type: module
+    - url: /hacsfiles/bar-card/bar-card.js
+      type: module
+    - url: /hacsfiles/apexcharts-card/apexcharts-card.js?v=2.0.4
+      type: module
+    - url: /hacsfiles/lovelace-multiple-entity-row/multiple-entity-row.js
+      type: module
+    - url: /hacsfiles/text-divider-row/text-divider-row.js
+      type: module
+    - url: /hacsfiles/formulaone-card/formulaone-card.js
+      type: module
+    - url: /hacsfiles/ha-teamtracker-card/ha-teamtracker-card.js
+      type: module
+    - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js?v=0.11.0
+      type: module
+    - url: /hacsfiles/ha-teamtracker-card/ha-teamtracker-card.js
+      type: module
+    - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
+      type: module
+    - url: /hacsfiles/lovelace-fold-entity-row/fold-entity-row.js 
+      type: module
+    - url: /hacsfiles/lovelace-hui-element/hui-element.js
+      type: module
+      
+group:
+  ignored_entities:
+    entities:
+      - tts.google_en_com
+      - remote.samsung_7_series_55
+      - sensor.saint_martin_de_saint_maixent_next_rain
+      - sensor.79_weather_alert
+      - switch.volet_cuisine
+      - switch.volet_cellier
+      - switch.volet_salle_eau
+      - switch.volet_chambre_parentale
+      - select.detecteur_vibration_cave_sensitivity
+      - sensor.guliangsi_gold_tenure
+      - light.garage
+      - media_player.tv_samsung_7_series_55
+      - media_player.xboxone
+      - sensor.epson_et_2550_series_black_ink
+      - sensor.epson_et_2550_series_cyan_ink
+      - sensor.epson_et_2550_series_magenta_ink
+      - sensor.epson_et_2550_series_yellow_ink
+      - sensor.epson_et_2550_series
+      - light.wiz_rgbww_tunable_0938f5
+      - switch.volet_chambre_arthur
+      - binary_sensor.c3e9bc7e_3d8bfd9b
+      - binary_sensor.5a01f0c9_fb25bdd5
+      - binary_sensor.e113f6fc_043608f8
+      - binary_sensor.09eb5e1d_9df5ba97
+    
+sensor: 
+  - platform: template
+    sensors:
+      sunelevation:
+        friendly_name: "Elevation du soleil"
+        value_template: "{{ state_attr('sun.sun', 'elevation') }}" 
+      sunazimuth:
+        friendly_name: "Azimut du soleil"
+        value_template: "{{ state_attr('sun.sun', 'azimuth') }}"
+
+  - platform: template
+    sensors:
+      temp_max_to_day:
+        value_template: >-
+          {{ state_attr('weather.forecast_maison', 'forecast')[0].temperature }}
+        unit_of_measurement: "°C"
+        
+  - platform: time_date
+    display_options:
+      - 'time'
+      - 'date'
+      - 'date_time'
+      - 'date_time_utc'
+      - 'date_time_iso'
+      - 'time_date'
+      - 'time_utc'
+      - 'beat'
+
+  - platform: template
+    sensors:
+      unavailable_entities:
+        friendly_name: Unavailable Entities
+        unit_of_measurement: entities
+        icon_template: "{{ 'mdi:check-circle' if is_state('sensor.unavailable_entities','0') else 'mdi:alert-circle' }}"
+        value_template: >
+          {{ states|selectattr('state','in',['unavailable','unknown','none'])|rejectattr('domain','in',['group','button','number','browser_mod'])
+            |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))|rejectattr('entity_id','search','(_browser|_screen|media_player)')|list|count }}
+        attribute_templates:
+          entities: >
+            {{ states|selectattr('state','in',['unavailable','unknown','none'])|rejectattr('domain','in',['group','button','number','browser_mod'])
+                |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))|rejectattr('entity_id','search','(_browser|_screen|media_player)')|map(attribute='entity_id')|list }}
+      available_updates:
+        friendly_name: Available Updates
+        unit_of_measurement: entities
+        icon_template: "{{ 'mdi:check-circle' if is_state('sensor.available_updates','0') else 'mdi:alert-circle' }}"
+        value_template: >
+          {{ states|selectattr('state','in',['on'])|selectattr('entity_id', 'search', '_update')|list|count }}
+        attribute_templates:
+          entities: >
+            {{ states|selectattr('state','in',['on'])|selectattr('entity_id', 'search', '_update')|map(attribute='entity_id')|list }}
+                                
+  # --- Router cpu  ---
+  - platform: snmp
+    name: 'Router 5 Min Cpu Load'
+    host: 192.168.1.1
+    baseoid: .1.3.6.1.4.1.2021.10.1.5.2
+    community: 'public'
+    version: '2c'
+    value_template: "{{((value | float) / 100) | float }}"
+    
+    
+  # --- Router wan ---  
+  - platform: snmp
+    name: 'SRM WAN in'
+    host: 192.168.1.1
+    baseoid: .1.3.6.1.2.1.31.1.1.1.6.4
+    community: 'public'
+    version: '2c'
+
+  - platform: snmp
+    name: 'SRM WAN out'
+    host: 192.168.1.1
+    baseoid: .1.3.6.1.2.1.31.1.1.1.10.4
+    community: 'public'
+    version: '2c'
+
+  - platform: derivative
+    name: srm_wan_in_der
+    source: sensor.srm_wan_in
+    unit_time: s
+    unit: B
+    
+  - platform: derivative
+    name: srm_wan_out_der
+    source: sensor.srm_wan_out
+    unit_time: s
+    unit: B
+    
+  - platform: template
+    sensors:
+        wan_download:
+          value_template:  "{{ [((states('sensor.srm_wan_in_der')|float(none)*8)/1560000)|round(2, default=none),0]|max }}"
+          unique_id: wan_download
+          unit_of_measurement: 'Mbps'
+          friendly_name: Down speed
+        wan_upload:
+          value_template:  "{{ [((states('sensor.srm_wan_out_der')|float(none)*8)/1560000)|round(2, default=none),0]|max }}"
+          unit_of_measurement: 'Mbps'
+          unique_id: wan_upload
+          friendly_name: Up speed
+        srm_wan_download_mib:
+          value_template:  "{{ (states('sensor.srm_wan_in')|float/1000000000)|round(2) }}"
+          unit_of_measurement: 'GB'
+          friendly_name: Total Download
+          unique_id: total_download
+        srm_wan_upload_mib:
+          value_template:  "{{ (states('sensor.srm_wan_out')|float/1000000000)|round(2) }}"
+          unit_of_measurement: 'GB'
+          friendly_name: Total Upload
+          unique_id: total_upload
+          
+template: !include sidebar.yaml
+
+          
+input_number:
+  vr_sun_hot:
+    name: Seuil haute température
+    min: "10"
+    max: "40"
+    step: "1"
+    unit_of_measurement: "°"
+    icon: mdi:sun-thermometer-outline
+  vr_cloud_cover:
+    name: Seuil couverture nuageuse
+    min: "0"
+    max: "100"
+    step: "5"
+    unit_of_measurement: "%"
+    icon: mdi:cloud-lock-outline 
+
+binary_sensor:
+  - platform: ping
+    host: 192.168.1.36
+    name: "srvnas"
+    count: 8
+    scan_interval: 30
+  - platform: template
+    sensors:
+      vr_sun_hot:
+        device_class: heat
+        delay_on: 
+          seconds: 300
+        delay_off:
+          seconds: 300
+        value_template: "{{states('sensor.temp_max_to_day')|float(0) >= states('input_number.vr_sun_hot') |float(0)
+                         }}" 
+        friendly_name: "Alerte haute température"
+
+input_boolean:
+  mode_jour_pv:
+    name: Mode Jour Pièce de Vie
+    icon: mdi:weather-sunny
+  mode_jour_coin_enfants:
+    name: Mode Jour Coin Enfants
+    icon: mdi:weather-sunny
+  mode_jour_suite_parentale:
+    name: Mode Jour Suite Parentale
+    icon: mdi:weather-sunny
+   
+input_select: 
+  modevacances:
+    name: mode vacances
+    options:
+      - Activé
+      - Désactivé
+  modevolets:
+    name: mode volets maison
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_salon:
+    name: mode volet salon
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_chambre_thibault:
+    name: mode volet chambre thibault
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_chambre_arthur:
+    name: mode volet chambre arthur
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_chambre_mathis:
+    name: mode volet chambre mathis
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_chambre_parentale:
+    name: mode volet chambre parentale
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_cuisine:
+    name: mode volet  cuisine
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_cellier:
+    name: mode volet  cellier
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_salle_eau:
+    name: mode volet salle eau
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_salle_de_bain:
+    name: mode volet salle bain
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_salle_a_manger:
+    name: mode volet salle a manger
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_porte_salon:
+    name: mode volet porte salle a manger
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+      
+  homemodevolets:
+    name: home mode volets maison
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_salon:
+    name: home mode volet salon
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_chambre_thibault:
+    name: home mode volet chambre thibault
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_chambre_arthur:
+    name: home mode volet chambre arthur
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_chambre_mathis:
+    name: home mode volet chambre mathis
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_chambre_parentale:
+    name: home mode volet chambre parentale
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_cuisine:
+    name: home mode volet  cuisine
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_cellier:
+    name: home mode volet  cellier
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_salle_eau:
+    name: home mode volet salle eau
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_salle_de_bain:
+    name: home mode volet salle bain
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_salle_a_manger:
+    name: home mode volet salle a manger
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_porte_salon:
+    name: home mode volet porte salle a manger
+    options:
+      - Nuit
+      - Jour

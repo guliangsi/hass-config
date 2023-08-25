@@ -1,0 +1,44 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Status
+    card_mod:
+      style:
+        #popup header
+        .:
+    content:
+      type: custom:mod-card
+      card_mod:
+        style:
+          hui-grid-card:
+            $: |
+              button-card:nth-child(2) {
+                margin: 0.6em 0 2.1em 0.8em;
+              }
+              button-card:nth-child(4) {
+                margin: 0.6em 0 0.5em 0.8em;
+              }
+              #root {
+                grid-gap: 0 !important;
+                padding: var(--tablet-popup-content-padding);
+              }
+      card:
+        type: custom:fold-entity-row
+        head: null
+        entity: sensor.unavailable_entities
+        entities:
+          - type: custom:hui-element
+            card_type: markdown
+            content: >
+              {%- if states('sensor.unavailable_entities')|lower not in
+              ['unknown','unavailable','none'] -%}
+                {%- if states('sensor.unavailable_entities')|int == 0 -%}
+                  No unavailable entities.
+                {%- else -%}
+                  {%- for entity in state_attr('sensor.unavailable_entities','entities') -%}
+                  - {{ entity }}{%- if not loop.last -%}{{ '\n' }}{%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+              {%- endif -%}
+
