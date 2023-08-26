@@ -3,7 +3,7 @@ homeassistant:
   country: FR
   time_zone: "Europe/Paris"
   allowlist_external_dirs:
-    - !secret allow_external_dir
+    - !secret allowlist_external_dirs
     
 # Loads default set of integrations. Do not remove.
 default_config:
