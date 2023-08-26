@@ -5,7 +5,9 @@ python:
   - "3.11"
 before_install:
   - mv travis_secrets.yaml secrets.yaml
-  - mkdir admin  
+  - mkdir ./config
+  - touch ./home-assistant_v2.db
+  - touch ./home-assistant.log  
   - HA_VERSION=$(<.HA_VERSION)
 install:
   - python3 -m pip install homeassistant==${HA_VERSION}
