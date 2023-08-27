@@ -187,7 +187,7 @@
       binary_sensor_soleil: binary_sensor.soleil_volets_est
       binary_sensor_ensoleillement: binary_sensor.ensoleillement
       binary_sensor_temp_ext: binary_sensor.temperature_exterieur
-      position_volet_auto_ete: 20
+      position_volet_auto_ete: 27
       suspend_automation_name: automation.suspend_volet_cellier
       binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot
 - id: '1692131884499'

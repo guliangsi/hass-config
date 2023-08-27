@@ -62,6 +62,7 @@ group:
       - switch.volet_cuisine
       - switch.volet_cellier
       - switch.volet_salle_eau
+      - switch.volet_porte_salon
       - switch.volet_chambre_parentale
       - select.detecteur_vibration_cave_sensitivity
       - sensor.guliangsi_gold_tenure
