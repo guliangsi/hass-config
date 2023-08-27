@@ -10,5 +10,6 @@ jobs:
       - name: 🚀 Run Home Assistant Configuration Check
         uses: frenck/action-home-assistant@v1
         with:
+          path: "./config"        
           secrets: travis_secrets.yaml
           version: 2023.8.4
