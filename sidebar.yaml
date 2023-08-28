@@ -173,6 +173,7 @@
           {%endfor%}
           {{ ns2.fermee }}
 
+
 - binary_sensor:
     - name: "soleil volets est"
       unique_id: soleil_volets_est
