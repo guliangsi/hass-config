@@ -13,7 +13,7 @@ jobs:
 
       - name: Read Home Assistant version
         run: echo "HA_VERSION=$(cat .HA_VERSION)" >> $GITHUB_ENV
-
+      
       - name: Prepare CI environment
         run: |
           mkdir -p ssl
@@ -30,11 +30,11 @@ jobs:
       
               allowlist_external_dirs)
                 echo "$secret:" >> secrets.yaml
-                echo "  - /tmp" >> secrets.yaml
+                echo "  - '/tmp'" >> secrets.yaml
                 ;;
       
-              external_url|internal_url)
-                echo "$secret: http://localhost" >> secrets.yaml
+              external_url|internal_url|base_url)
+                echo "$secret: 'http://localhost'" >> secrets.yaml
                 ;;
       
               influxdb_port)
@@ -50,17 +50,16 @@ jobs:
                 ;;
       
               *_url)
-                echo "$secret: http://example.com" >> secrets.yaml
+                echo "$secret: 'http://example.com'" >> secrets.yaml
                 ;;
       
               *_dir)
-                echo "$secret: /tmp" >> secrets.yaml
+                echo "$secret: '/tmp'" >> secrets.yaml
                 ;;
       
               *)
                 echo "$secret: CI_DUMMY_VALUE" >> secrets.yaml
                 ;;
-      
             esac
           done
           
