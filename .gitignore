@@ -37,3 +37,6 @@ zone-log-*.csv
 # other generated files
 *.db
 *.sqlite
+
+# hacs
+www/community
