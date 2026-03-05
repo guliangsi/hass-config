@@ -1,0 +1,35 @@
+name: Home Assistant CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML
+        run: yamllint .
+
+  test-config:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Home Assistant config
+        run: |
+          docker run \
+            -v $(pwd):/config \
+            ghcr.io/home-assistant/home-assistant:stable \
+            python -m homeassistant --script check_config --config /config
