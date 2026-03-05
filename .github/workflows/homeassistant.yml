@@ -13,10 +13,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      
+      - name: Read Home Assistant version
+        id: ha_version
+        run: echo "HA_VERSION=$(cat .HA_VERSION)" >> $GITHUB_ENV
+  
       - name: Check Home Assistant config
         run: |
           docker run \
             -v $(pwd):/config \
-            ghcr.io/home-assistant/home-assistant:stable \
+            ghcr.io/home-assistant/home-assistant:${{ env.HA_VERSION }}  \
             python -m homeassistant --script check_config --config /config
