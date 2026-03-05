@@ -29,8 +29,7 @@ jobs:
             case $secret in
       
               allowlist_external_dirs)
-                printf "%s\n" "$secret:" >> secrets.yaml
-                printf "  - /tmp\n" >> secrets.yaml
+                echo "$secret: /tmp" >> secrets.yaml
                 ;;
       
               external_url|internal_url|base_url)
