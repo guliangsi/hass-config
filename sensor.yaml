@@ -1,0 +1,42 @@
+##Pour affichage de la date       
+  - platform: time_date
+    display_options:
+      - 'time'
+      - 'date'
+      - 'date_time'
+      - 'date_time_utc'
+      - 'date_time_iso'
+      - 'time_date'
+      - 'time_utc'
+
+  # Sensor for Riemann sum of energy import (W -> Wh)
+  - platform: integration
+    source: sensor.power_import
+    name: energy_import_sum
+    unit_prefix: k
+    round: 2
+    method: left
+
+  # Sensor for Riemann sum of energy export (W -> Wh)
+  - platform: integration
+    source: sensor.power_export
+    name: energy_export_sum
+    unit_prefix: k
+    round: 2
+    method: left
+
+  # Sensor for Riemann sum of energy consumption (W -> Wh)
+  - platform: integration
+    source: sensor.power_consumption
+    name: energy_consumption_sum
+    unit_prefix: k
+    round: 2
+    method: left
+
+  # Sensor for Riemann sum of solar production
+  - platform: integration
+    source: sensor.shellypro3em_ac15187ab290_em2_power
+    name: energy_production_sum
+    unit_prefix: k
+    round: 2
+    method: left

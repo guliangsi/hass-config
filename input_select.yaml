@@ -1,0 +1,193 @@
+  modevacances:
+    name: mode vacances
+    options:
+      - Activé
+      - Désactivé
+  modevolets:
+    name: mode volets maison
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevoletsenfants:
+    name: mode volets enfants
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevoletsparents:
+    name: mode volets parents
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevoletspiecedevie:
+    name: mode volets piece de vie
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_salon:
+    name: mode volet salon
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_chambre_thibault:
+    name: mode volet chambre thibault
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_chambre_arthur:
+    name: mode volet chambre arthur
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_chambre_mathis:
+    name: mode volet chambre mathis
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_chambre_parentale:
+    name: mode volet chambre parentale
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_cuisine:
+    name: mode volet  cuisine
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_cellier:
+    name: mode volet  cellier
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_salle_eau:
+    name: mode volet salle eau
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_salle_de_bain:
+    name: mode volet salle bain
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_salle_a_manger:
+    name: mode volet salle a manger
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+  modevolet_porte_salon:
+    name: mode volet porte salle a manger
+    options:
+      - Auto J/N
+      - Auto Eté
+      - Manuel
+      - Desactive
+      
+  homemodevolets:
+    name: home mode volets maison
+    options:
+      - Nuit
+      - Jour
+  homemodevoletsenfants:
+    name: home mode volets enfants
+    options:
+      - Nuit
+      - Jour
+  homemodevoletsparents:
+    name: home mode volets parents
+    options:
+      - Nuit
+      - Jour
+  homemodevoletspiecedevie:
+    name: home mode volets piece de vie
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_salon:
+    name: home mode volet salon
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_chambre_thibault:
+    name: home mode volet chambre thibault
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_chambre_arthur:
+    name: home mode volet chambre arthur
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_chambre_mathis:
+    name: home mode volet chambre mathis
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_chambre_parentale:
+    name: home mode volet chambre parentale
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_cuisine:
+    name: home mode volet  cuisine
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_cellier:
+    name: home mode volet  cellier
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_salle_eau:
+    name: home mode volet salle eau
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_salle_de_bain:
+    name: home mode volet salle bain
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_salle_a_manger:
+    name: home mode volet salle a manger
+    options:
+      - Nuit
+      - Jour
+  homemodevolet_porte_salon:
+    name: home mode volet porte salle a manger
+    options:
+      - Nuit
+      - Jour
+      
+  vmc_filter:
+    name: filtre vmc action
+    options:
+      - clean
+      - change
+      - ok

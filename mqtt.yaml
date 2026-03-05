@@ -1,0 +1,41 @@
+sensor:
+  - name: "cuve.volume"
+    unique_id: cuve_volume
+    state_topic: "cuve"
+    value_template: '{{ value_json.state }}'
+    payload_available: "on"
+    payload_not_available: "off"
+    json_attributes_topic: "cuve"
+    expire_after: 600
+
+  - name: "vmc_date_changement_filtre"
+    unique_id: vmc_date_changement_filtre
+    state_topic: "maison/vmc/change_filtre"
+    value_template: '{{ value_json.date }}'
+
+  - name: "vmc_date_nettoyage_filtre"
+    unique_id: vmc_date_nettoyage_filtre
+    state_topic: "maison/vmc/nettoyage_filtre"
+    value_template: '{{ value_json.date }}'
+
+binary_sensor:
+  - name: "allumage_auto_carport"
+    unique_id: allumage_auto_carport
+    state_topic: "customstates/light/carport/state"
+    payload_on: "1"
+    payload_off: "0"
+
+  - name: "portail_garage_state"
+    unique_id: portail_garage_state
+    state_topic: "maison/ipx800/portegaragestate"
+    payload_on: 1
+    payload_off: 0
+
+  - name: "rfplayer_jamming"
+    unique_id: rfplayer_jamming
+    state_topic: "jeedom/cmd/event/1_retained"
+    value_template: '{{ value_json.value }}'
+    device_class: tamper
+    payload_on: 1
+    payload_off: 0
+    json_attributes_topic: "jeedom/cmd/event/1_retained"

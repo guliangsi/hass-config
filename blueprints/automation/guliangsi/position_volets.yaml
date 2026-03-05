@@ -1,0 +1,139 @@
+blueprint:
+  name: Positionnement Volet
+  description: Gestion positionnement Volet Auto
+  domain: automation
+  input:
+    cover_target:
+      name: Volet
+      selector:
+        entity:
+          domain: cover  
+    input_select_mode_volet:
+      name: Input select mode pour le volet à gérer (Auto/Manu...)
+      selector:
+        entity:
+          domain: input_select
+    input_select_mode_maison:
+      name: Input select pour le mode de la maison pour le volet (Nuit/jour par ex)
+      selector:
+        entity:
+          domain: input_select
+    binary_sensor_soleil:
+      name: Capteur binaire présence soleil sur volet
+      selector:
+        entity:
+          domain: binary_sensor
+    binary_sensor_alerte_haute_temperature:
+      name: Capteur binaire alerte haute temperature
+      selector:
+        entity:
+          domain: binary_sensor
+    position_volet_auto_ete:
+      name: Positio du volet en % en mode auto été
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+          mode: slider
+    suspend_automation_name:
+      name: Nom de l'automation suspend volet
+      selector:
+        entity:
+          domain: automation
+mode: restart
+max_exceeded: silent
+
+variables:
+  select_mode_volet: !input input_select_mode_volet
+  
+trigger:
+  - platform: state
+    entity_id: !input input_select_mode_volet
+    to: null
+  - platform: state
+    entity_id: !input input_select_mode_maison
+    to: null
+  - platform: state
+    to: null
+    entity_id: !input binary_sensor_soleil
+  - platform: state
+    to: null
+    entity_id: !input binary_sensor_alerte_haute_temperature
+action:
+  - condition: template
+    value_template: "{{ not is_state(select_mode_volet, 'Manuel') }}"
+  - condition: template
+    value_template: "{{ not is_state(select_mode_volet, 'Desactive') }}"
+  - choose:
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: !input input_select_mode_maison
+                state: Nuit
+        sequence:
+          - service: automation.turn_off
+            data:
+              stop_actions: true
+            entity_id: !input suspend_automation_name
+          - service: cover.close_cover
+            entity_id: !input cover_target
+            data: {}
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 45
+              milliseconds: 0            
+          - service: automation.turn_on
+            data: {}
+            entity_id: !input suspend_automation_name
+      - conditions:
+          - condition: and
+            conditions:
+              - condition: state
+                entity_id: !input input_select_mode_maison
+                state: Jour
+              - condition: state
+                entity_id: !input input_select_mode_volet
+                state: Auto Eté
+              - condition: state
+                entity_id: !input binary_sensor_soleil
+                state: "on"
+              - condition: state
+                entity_id: !input binary_sensor_alerte_haute_temperature
+                state: "on"
+        sequence:
+          - service: automation.turn_off
+            data:
+              stop_actions: true
+            entity_id: !input suspend_automation_name
+          - service: cover.set_cover_position
+            data:
+              position: !input position_volet_auto_ete
+            entity_id: !input cover_target
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 45
+              milliseconds: 0             
+          - service: automation.turn_on
+            data: {}
+            entity_id: !input suspend_automation_name
+    default:
+      - service: automation.turn_off
+        data:
+          stop_actions: true
+        entity_id: !input suspend_automation_name
+      - service: cover.open_cover
+        entity_id: !input cover_target
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 45
+          milliseconds: 0         
+      - service: automation.turn_on
+        data: {}
+        entity_id: !input suspend_automation_name

@@ -1,0 +1,16 @@
+##Fixe seuil haute température pour déclencher Alerte haute température
+  vr_sun_hot:
+    name: Seuil haute température
+    min: 10
+    max: 40
+    step: 1
+    unit_of_measurement: "°"
+    icon: mdi:sun-thermometer-outline
+##Fixe seuil couverture nuageuse (non utilisé pour le moment)
+  vr_cloud_cover:
+    name: Seuil couverture nuageuse
+    min: 0
+    max: 100
+    step: 5
+    unit_of_measurement: "%"
+    icon: mdi:cloud-lock-outline 

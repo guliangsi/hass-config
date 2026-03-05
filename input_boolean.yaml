@@ -1,0 +1,19 @@
+  mode_jour_pv:
+    name: Mode Jour Pièce de Vie
+    icon: mdi:weather-sunny
+  mode_jour_coin_enfants:
+    name: Mode Jour Coin Enfants
+    icon: mdi:weather-sunny
+  mode_jour_suite_parentale:
+    name: Mode Jour Suite Parentale
+    icon: mdi:weather-sunny
+  mode_vacances_parents:
+    name: Mode vacances parents
+  mode_vacances_enfants:
+    name: Mode vacances enfants
+  vmc_change:
+    name: Changement Filtre VMC
+  vmc_clean:
+    name: Nettoyage Filtre VMC
+  aide_volets:
+    name: Afficher aide volets

@@ -1,0 +1,23 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Cuve Eau
+    size: fullscreen
+    card_mod:
+      style:
+        #popup header
+        .:
+    content:
+      type: custom:apexcharts-card
+      graph_span: 30d
+      all_series_config:
+        stroke_width: 2
+      header:
+        show: true
+        title: Cuve Eau
+        show_states: false
+        colorize_states: true
+      series:
+        - entity: sensor.cuve_volume
+          attribute: volume_litre

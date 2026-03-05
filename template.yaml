@@ -1,0 +1,381 @@
+- trigger:
+    - platform: time
+      at:
+        - '01:00:00'
+        - '03:00:00'   
+        - '05:00:00'   
+        - '07:00:00'   
+        - '09:00:00'   
+        - '11:00:00'   
+        - '13:00:00'   
+        - '15:00:00'    
+    - platform: homeassistant
+      event: start
+  action:
+    - service: weather.get_forecasts
+      target:
+        entity_id: weather.saint_martin_de_saint_maixent
+      data:
+        type: daily
+      response_variable: daily_forecast
+  binary_sensor:
+    - name: vr_sun_hot_forecast
+      unique_id: 28ea41d6-6552-48ec-9e08-30738d3690f1
+      device_class: heat
+      state: "{{ daily_forecast['weather.saint_martin_de_saint_maixent'].forecast[0].temperature | float(0) >= states('input_number.vr_sun_hot') |float(0)}}"
+
+- sensor:
+    - unique_id: sidebar
+      state: template
+      attributes:
+        time: >
+          {% set hours = now().strftime('%H') %}
+          {% set minutes = now().strftime('%M') %}
+          <span class="time">
+            {{ hours }}<span class="time-colon">:</span>{{ minutes }}
+          </span>
+        date: |
+          <font color='#6a7377'><b>
+          {%- if strptime(states('sensor.date'), '%Y-%m-%d').day != null %}
+          {%- set days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] %}
+          {%- set months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+          'Julliet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+            {{- days[now().weekday()] }}<br>
+            {{- strptime(states('sensor.date'), '%Y-%m-%d').day }} {{ months[now().month-1] }}
+          {%- endif -%}
+          </b></font>
+        saints: |
+          <font color='#6a7377'><b>
+          🎉 Nous fêtons les {{ states('sensor.fete_du_jour') }} 🎉 
+          </b></font>
+        greet: |
+          <b>
+          {%- set time = now().hour %}
+          {%- if time <= 1 -%} Bonne nuit {{'\U0001F611'}}
+          {%- elif time <= 3 -%} Bonne nuit {{'\U0001F62A'}}
+          {%- elif time <= 5 -%} Bonne nuit {{'\U0001F634'}}
+          {%- elif time <= 7 -%} Bonjour {{'\U0001F4A9'}}
+          {%- elif time <= 9 -%} Bonjour {{'\u2615\uFE0F'}}
+          {%- elif time <= 10 -%} Bonjour {{'\U0001F642'}}
+          {%- elif time <= 13 -%} Bonne journée {{'\U0001F60A'}}
+          {%- elif time <= 15 -%} Bonne journée {{'\U0001F60E'}}
+          {%- elif time <= 17 -%} Bonne journée {{'\U0001F44B\U0001F3FB'}}
+          {%- elif time <= 19 -%} Bonne soirée {{'\U0001F44B\U0001F3FB'}}
+          {%- elif time <= 22 -%} Bonne soirée {{'\U0001F60C'}}
+          {%- elif time <= 23 -%} Bonne soirée {{'\U0001F974'}}
+          {%- else %} Bonne soirée {{'\U0001F974'}}
+          {%- endif -%}
+          </b>
+        active: |
+          {%- set lights = [
+            states.light.eclairage_carport,
+            states.light.garage,
+          ] %}
+
+          {%- set lights_on = lights | selectattr('state','eq','on') | list %}
+
+          {%- if (lights_on | length == 1) -%}
+            {{ lights_on | length }} lumière est allumée
+
+          {%- elif (lights_on | length > 1) -%}
+            {{ lights_on | length }} lumières sont allumées
+          {%- endif -%}
+        portes: |
+          {%- set portes = [
+            states.binary_sensor.detecteur_ouverture_cuisine_contact,
+            states.binary_sensor.detecteur_ouverture_salon_contact,
+            states.binary_sensor.detecteur_ouverture_sejour_droite_contact,
+            states.binary_sensor.detecteur_ouverture_sejour_gauche_contact,
+            states.binary_sensor.detecteur_ouverture_porte_salon_contact,
+            states.binary_sensor.detecteur_ouverture_porte_entree_contact,
+            states.binary_sensor.detecteur_ouverture_chambre_parentale_contact,
+            states.binary_sensor.detecteur_ouverture_porte_service_garage_contact,
+            
+          ] %}
+
+          {%- set portes_on = portes | selectattr('state','eq','on') | list %}
+
+          {%- if (portes_on | length == 1) -%}
+            {{ portes_on | length }} porte est ouverte
+
+          {%- elif (portes_on | length > 1) -%}
+            {{ portes_on | length }} portes sont ouvertes
+          {%- endif -%}
+        volets: |
+          {%- set volets = [
+            states.cover.volet_cellier,
+            states.cover.volet_cuisine,
+            states.cover.volet_salon,
+            states.cover.volet_salle_a_manger,
+            states.cover.volet_porte_salon,
+            states.cover.volet_chambre_parentale,
+            states.cover.volet_salle_eau,
+            states.cover.volet_salle_de_bain,
+            states.cover.volet_chambre_mathis,
+            states.cover.volet_chambre_arthur,
+            states.cover.volet_chambre_thibault,                        
+          ] %}
+
+          {%- set volets_on = volets | selectattr('state','eq','open') | list %}
+
+          {%- if (volets_on | length == 1) -%}
+            {{ volets_on | length }} volet est ouvert
+
+          {%- elif (volets_on | length > 1) -%}
+            {{ volets_on | length }} volets sont ouverts
+          {%- endif -%}
+        weather: |
+          {% set temperature = state_attr('weather.forecast_maison', 'temperature') %}
+          {% set weather_state = states('weather.forecast_maison')
+            | replace('rainy', 'Pluvieux')
+            | replace('partlycloudy', 'Partiellement nuageux')
+            | replace('cloudy', 'Nuageux')
+            | replace('clear-night', 'Nuit claire')
+            | replace('fog', 'Brumeux')
+            | replace('hail', 'Grêleux')
+            | replace('lightning-rainy', 'Orageux')
+            | replace('lightning', 'Orageux')
+            | replace('pourring', 'Pluie intense')
+            | replace('snowy-rainy', 'Neigeux')
+            | replace('snowy', 'Neigeux')
+            | replace('sunny', 'Ensoleillé')
+            | replace('windy-variant', 'Variblement venteux')
+            | replace('windy', 'Venteux')
+            | replace('exceptional', 'Exceptionel') %}
+          {% if not state_attr('weather.forecast_maison', 'temperature') == 'unknow' %}
+            {% if temperature | float <= 0.0 %}
+              {{ weather_state }}, il fait {{ temperature }}°
+              Il fait {{ states('sensor.detecteur_fumee_entree_air_temperature') }}°C dans la maison.
+            {% elif temperature | float > 0.0 %}
+              {{ weather_state }}, il fait {{ temperature }}°
+              Il fait {{ states('sensor.detecteur_fumee_entree_air_temperature') }}°C dans la maison.
+            {% endif %}
+          {% else %}
+            Pas d'information métérologique...
+          {% endif %}
+
+- sensor:
+    - name: "poubelle_verte_jour"
+      state: >-
+        {% set delta = state_attr('calendar.poubelle_dechets', 'start_time') | as_datetime | as_local - today_at() %}
+        {{ {0: "Aujourd'hui", 1: "Demain"}.get(delta.days, 'Dans ' ~ delta.days ~  ' Jours') }}
+      attributes:
+        date: >-
+          {{ as_timestamp(states.calendar.poubelle_dechets.attributes.start_time) | timestamp_custom("%d/%m/%y", True) }}
+        jours: "{{((as_timestamp(states.calendar.poubelle_dechets.attributes.start_time)- as_timestamp(now())) /86400+1) | int}}"
+    - name: "poubelle_jaune_jour"
+      state: >-
+        {% set delta = state_attr('calendar.poubelle_tri', 'start_time') | as_datetime | as_local - today_at() %}
+        {{ {0: "Aujourd'hui", 1: "Demain"}.get(delta.days, 'Dans ' ~ delta.days ~  ' Jours') }}
+      attributes:
+        date: >-
+          {{ as_timestamp(states.calendar.poubelle_tri.attributes.start_time) | timestamp_custom("%d/%m/%y", True) }}
+        jours: "{{((as_timestamp(states.calendar.poubelle_tri.attributes.start_time)- as_timestamp(now())) /86400+1) | int}}"
+    - name: "next_poubelle"
+      state: >-
+        {% set jour_poubelle_verte = state_attr('sensor.poubelle_verte_jour', 'jours')  %}
+        {% set jour_poubelle_jaune = state_attr('sensor.poubelle_jaune_jour', 'jours')  %}
+        {% if jour_poubelle_verte > jour_poubelle_jaune %} jaune
+        {% else %} verte
+        {% endif %}
+      attributes:
+        jours: >-
+          {% set jour_poubelle_verte = state_attr('sensor.poubelle_verte_jour', 'jours')  %}
+          {% set jour_poubelle_jaune = state_attr('sensor.poubelle_jaune_jour', 'jours')  %}
+          {% if jour_poubelle_verte > jour_poubelle_jaune %} {{jour_poubelle_jaune}}
+          {% else %} {{jour_poubelle_verte}}
+          {% endif %}
+        hjours: >-
+          {% set jour_poubelle_verte = state_attr('sensor.poubelle_verte_jour', 'jours')  %}
+          {% set hjour_poubelle_verte = states('sensor.poubelle_verte_jour')  %}
+          {% set jour_poubelle_jaune = state_attr('sensor.poubelle_jaune_jour', 'jours')  %}
+          {% set hjour_poubelle_jaune = states('sensor.poubelle_jaune_jour')  %}
+          {% if jour_poubelle_verte > jour_poubelle_jaune %} {{hjour_poubelle_jaune}}
+          {% else %} {{hjour_poubelle_verte}}
+          {% endif %}
+          
+- sensor:
+    - name: number_volets_maison
+      state: >-
+        {% set ns = namespace(total=0) %}
+        {% for cover in state_attr('cover.volets_maison', 'entity_id') %}
+          {% set ns.total = ns.total + 1 %}
+        {%endfor%}
+        {{ ns.total }}
+      attributes:
+        ouvert: >-
+          {% set ns1 = namespace(ouvert=0) %}
+          {% for cover in state_attr('cover.volets_maison', 'entity_id') if is_state(cover, 'open') %}
+          {% set ns1.ouvert = ns1.ouvert + 1 %}
+          {%endfor%}
+          {{ ns1.ouvert }}
+        fermee: >-
+          {% set ns2 = namespace(fermee=0) %}
+          {% for cover in state_attr('cover.volets_maison', 'entity_id') if is_state(cover, 'closed') %}
+          {% set ns2.fermee = ns2.fermee + 1 %}
+          {%endfor%}
+          {{ ns2.fermee }}
+    - name: cuve_nombre_litres
+      state: >-
+        {{(states('sensor.0xa4c1385b8c215593_liquid_depth')|float(0)*1000) }}
+      unit_of_measurement: "l"
+    - default_entity_id: sensor.sunelevation
+      name: Elevation du soleil
+      state: '{{ state_attr(''sun.sun'', ''elevation'') }}'
+    - default_entity_id: sensor.sunazimuth
+      name: Azimut du soleil
+      state: '{{ state_attr(''sun.sun'', ''azimuth'') }}'
+    - unit_of_measurement: entities
+      default_entity_id: sensor.unavailable_entities
+      icon: '{{ ''mdi:check-circle'' if is_state(''sensor.unavailable_entities'',''0'')
+        else ''mdi:alert-circle'' }}'
+      attributes:
+        entities: "{{ states|selectattr('state','in',['unavailable','unknown','none'])|rejectattr('domain','in',['group','button','number','browser_mod'])\n
+          \   |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))|rejectattr('entity_id','search','(_browser|_screen|media_player)')|map(attribute='entity_id')|list
+          }}"
+      name: Unavailable Entities
+      state: "{{ states|selectattr('state','in',['unavailable','unknown','none'])|rejectattr('domain','in',['group','button','number','browser_mod'])\n
+        \ |rejectattr('entity_id','in',state_attr('group.ignored_entities','entity_id'))|rejectattr('entity_id','search','(_browser|_screen|media_player)')|list|count
+        }}"
+    - unit_of_measurement: entities
+      default_entity_id: sensor.available_updates
+      icon: '{{ ''mdi:check-circle'' if is_state(''sensor.available_updates'',''0'')
+        else ''mdi:alert-circle'' }}'
+      attributes:
+        entities: '{{ states|selectattr(''state'',''in'',[''on''])|selectattr(''entity_id'',
+          ''search'', ''_update'')|map(attribute=''entity_id'')|list }}'
+      name: Available Updates
+      state: '{{ states|selectattr(''state'',''in'',[''on''])|selectattr(''entity_id'',
+        ''search'', ''_update'')|list|count }}'
+    - unit_of_measurement: W
+      default_entity_id: sensor.power_import
+      availability: '{{ [ states(''sensor.shellypro3em_ac15187ab290_em0_power'') ] |
+        map(''is_number'') | min }}'
+      name: Power Import
+      state: "{% if (states('sensor.shellypro3em_ac15187ab290_em0_power')|float) > 0
+        %}\n  {{ states('sensor.shellypro3em_ac15187ab290_em0_power')|float }}\n{% else
+        %}\n  {{ 0 }}\n{% endif %}"
+    - unit_of_measurement: W
+      default_entity_id: sensor.power_export
+      availability: '{{ [ states(''sensor.shellypro3em_ac15187ab290_em0_power'') ] |
+        map(''is_number'') | min }}'
+      name: Power Export
+      state: "{% if (states('sensor.shellypro3em_ac15187ab290_em0_power')|float) < 0
+        %}\n  {{ (states('sensor.shellypro3em_ac15187ab290_em0_power')|float) * -1 }}\n{%
+        else %}\n  {{ 0 }}\n{% endif %}"
+    - unit_of_measurement: W
+      default_entity_id: sensor.power_consumption
+      name: Power Consumption
+      state: "{% if (states('sensor.power_export')|float(0)) > 0 and (states('sensor.shellypro3em_ac15187ab290_em2_power')|float(0)
+        - states('sensor.power_export')|float(0)) < 0 %} {% elif (states('sensor.power_export')|float(0))
+        > 0 and (states('sensor.shellypro3em_ac15187ab290_em2_power')|float(0) - states('sensor.power_export')|float(0))
+        > 0 %}\n  {{ (states('sensor.shellypro3em_ac15187ab290_em2_power')|float(0))
+        - states('sensor.power_export')|float(0) }}    \n{% else %}\n  {{ states('sensor.power_import')|float(0)
+        + states('sensor.shellypro3em_ac15187ab290_em2_power')|float(0) }}\n{% endif
+        %}"
+    - default_entity_id: sensor.nb_volets_open
+      name: nb_volets_open
+      state: '{%- set volets = [ states.cover.volet_cellier, states.cover.volet_cuisine,
+        states.cover.volet_salon, states.cover.volet_salle_a_manger, states.cover.volet_porte_salon,
+        states.cover.volet_chambre_parentale, states.cover.volet_salle_eau, states.cover.volet_salle_de_bain,
+        states.cover.volet_chambre_mathis, states.cover.volet_chambre_arthur, states.cover.volet_chambre_thibault,]
+        %} {% set open = volets | selectattr(''state'',''eq'',''open'') | list | count
+        %} {{open}}'
+    - default_entity_id: sensor.nb_volets_closed
+      name: nb_volets_closed
+      state: '{%- set volets = [ states.cover.volet_cellier, states.cover.volet_cuisine,
+        states.cover.volet_salon, states.cover.volet_salle_a_manger, states.cover.volet_porte_salon,
+        states.cover.volet_chambre_parentale, states.cover.volet_salle_eau, states.cover.volet_salle_de_bain,
+        states.cover.volet_chambre_mathis, states.cover.volet_chambre_arthur, states.cover.volet_chambre_thibault,]
+        %} {% set closed = volets | selectattr(''state'',''eq'',''closed'') | list |
+        count %} {{closed}}'
+    - default_entity_id: sensor.nb_portes_open
+      name: nb_portes_open
+      state: '{%- set portes = [ states.binary_sensor.detecteur_ouverture_cuisine_contact,
+        states.binary_sensor.detecteur_ouverture_salon_contact, states.binary_sensor.detecteur_ouverture_sejour_droite_contact,
+        states.binary_sensor.detecteur_ouverture_sejour_gauche_contact, states.binary_sensor.detecteur_ouverture_porte_salon_contact,
+        states.binary_sensor.detecteur_ouverture_porte_entree_contact, states.binary_sensor.detecteur_ouverture_chambre_parentale_contact,
+        states.binary_sensor.detecteur_ouverture_porte_service_garage_contact,] %} {%-
+        set portes_on = portes | selectattr(''state'',''eq'',''on'') | list | count
+        %} {{portes_on}}'
+    - default_entity_id: sensor.nb_portes_closed
+      name: nb_portes_closed
+      state: '{%- set portes = [ states.binary_sensor.detecteur_ouverture_cuisine_contact,
+        states.binary_sensor.detecteur_ouverture_salon_contact, states.binary_sensor.detecteur_ouverture_sejour_droite_contact,
+        states.binary_sensor.detecteur_ouverture_sejour_gauche_contact, states.binary_sensor.detecteur_ouverture_porte_salon_contact,
+        states.binary_sensor.detecteur_ouverture_porte_entree_contact, states.binary_sensor.detecteur_ouverture_chambre_parentale_contact,
+        states.binary_sensor.detecteur_ouverture_porte_service_garage_contact,] %} {%-
+        set portes_off = portes | selectattr(''state'',''eq'',''off'') | list | count
+        %} {{portes_off}}'
+
+- binary_sensor:
+    - name: "soleil volets est"
+      unique_id: soleil_volets_est
+      state: '{{ (56 < (states("sensor.sunazimuth")|float) < 124) and ((states("sensor.sunelevation")|float) > 0) }}'
+    - name: "soleil volets sud"
+      unique_id: soleil_volets_sud
+      state: '{{ (65 < (states("sensor.sunazimuth")|float) < 225) and ((states("sensor.sunelevation")|float) > 0) }}'
+    - name: "soleil volets sud ouest"
+      unique_id: soleil_volets_sud_ouest
+      state: '{{ (135 < (states("sensor.sunazimuth")|float) < 260) and ((states("sensor.sunelevation")|float) > 0) }}'
+    - name: "soleil volets chambres sud"
+      unique_id: soleil_volets_chambres_sud
+      state: '{{ (80 < (states("sensor.sunazimuth")|float) < 225) and ((states("sensor.sunelevation")|float) > 0) }}'
+    - name: "soleil volets ouest"
+      unique_id: soleil_volets_ouest
+      state: '{{ (130 < (states("sensor.sunazimuth")|float) < 300) and ((states("sensor.sunelevation")|float) > 0) }}'
+    - name: "soleil volets nord"
+      unique_id: soleil_volets_nord
+      state: '{{ (230 < (states("sensor.sunazimuth")|float) < 300) and ((states("sensor.sunelevation")|float) > 0) }}'
+    - name: "poubelle a sortir"
+      unique_id: poubelle_a_sortir
+      state: '{{ is_state_attr("sensor.next_poubelle", "jours", 0) }}'
+    - device_class: heat
+      delay_on: 0:05:00
+      delay_off: 0:05:00
+      default_entity_id: binary_sensor.vr_sun_hot
+      name: Alerte haute température
+      state: '{{states(''sensor.temp_max_to_day'')|float(0) >= states(''input_number.vr_sun_hot'') |float(0) }}'
+      
+- trigger:
+    platform: event
+    event_type: netatmo_event
+    event_data:
+      data:
+        device_id: !secret netatmo_mac
+  binary_sensor:
+    - name: "Detection Mouvement Camera Garage"
+      unique_id: 4bdd1bf4-cd27-4292-980a-6cbf4cafcd6e
+      device_class: motion
+      state: "true"
+      auto_off: 10
+      attributes:
+        type: >
+          {% if trigger.event.data.data.event_type is defined %}
+            {{ trigger.event.data.data.event_type }}
+          {% endif %}
+        message: >
+          {% if trigger.event.data.data.message is defined %}
+            {{ trigger.event.data.data.message }}
+          {% endif %}
+        time_fired: >
+          {% if trigger.event.time_fired is defined %}
+            {{ trigger.event.time_fired }}
+          {% endif %}
+
+- trigger:
+    - platform: time_pattern
+      hours: /1
+  action:
+    - service: weather.get_forecasts
+      data:
+        type: daily
+      target:
+        entity_id: weather.saint_martin_de_saint_maixent
+      response_variable: daily_forecast
+  sensor:
+    - name: temp_max_to_day
+      unique_id: temp_max_to_day
+      state: "{{ daily_forecast['weather.saint_martin_de_saint_maixent'].forecast[0].temperature }}"
+      unit_of_measurement: °C
+

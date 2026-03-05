@@ -1,0 +1,39 @@
+# secrets
+secrets.yaml
+
+# runtime
+*.log
+*.log.*
+home-assistant.log
+home-assistant.log.*
+home-assistant_v2.db
+home-assistant_v2.db-shm
+home-assistant_v2.db-wal
+.ha_version
+.ha_run.lock
+
+# backups
+backups/
+
+# temp
+deps/
+tts/
+tmp/
+
+# system generated
+.storage/
+.cloud/
+
+# python cache
+__pycache__/
+
+# IDE
+.vscode/
+.idea/
+
+# csv data logs
+zone-log-*.csv
+
+# other generated files
+*.db
+*.sqlite

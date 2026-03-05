@@ -1,0 +1,18 @@
+action: fire-dom-event
+browser_mod:
+  service: browser_mod.popup
+  data:
+    title: Caméras
+    size: fullscreen
+    card_mod:
+      style:
+        #popup header
+        .:
+    content:
+      type: custom:surveillance-card
+      thumb_interval: 10
+      update_interval: 1
+      show_capture_buttons: false
+      camera_view: live
+      cameras:
+        - entity: camera.garage

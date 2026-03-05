@@ -1,0 +1,2163 @@
+- id: '1691003997620'
+  alias: Alarmo Keypad Sync
+  description: ''
+  use_blueprint:
+    path: neliss/zigbee2mqtt-control-alarmo-via-keypad.yaml
+    input:
+      state_topic: zigbee2mqtt/Clavier Alarme
+      set_topic: zigbee2mqtt/Clavier Alarme/set
+      entity: alarm_control_panel.alarmo
+- id: '1691587885521'
+  alias: UpdateModeVoletsMaison
+  description: ''
+  trigger:
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: input_select.modevolets
+  action:
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cellier'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_cellier
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cuisine'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_cuisine
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_porte_salon'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_porte_salon
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_a_manger'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_salle_a_manger
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salon'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_salon
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_mathis'',
+        ''Desactive'') }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_chambre_mathis
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_thibault'',
+        ''Desactive'') }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_chambre_thibault
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_de_bain'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_salle_de_bain
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_arthur'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_chambre_arthur
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_eau'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_salle_eau
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_parentale'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_chambre_parentale
+  mode: restart
+- id: '1691746164714'
+  alias: Allumer Carport Auto
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.detecteur_carport_motion_detection
+    platform: state
+    to: 'on'
+  condition:
+  - condition: template
+    value_template: '{{ states(''sensor.detecteur_carport_illuminance'') | float(0)
+      < 30 }}'
+  action:
+  - service: light.turn_on
+    entity_id: light.eclairage_carport
+  - service: mqtt.publish
+    data:
+      qos: 0
+      retain: true
+      topic: customstates/light/carport/state
+      payload: '1'
+- id: '1691746870970'
+  alias: Eteindre Carport Auto
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.detecteur_carport_motion_detection
+    platform: state
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: binary_sensor.allumage_auto_carport
+    state: 'on'
+  action:
+  - service: light.turn_off
+    entity_id: light.eclairage_carport
+  - service: mqtt.publish
+    data:
+      qos: 0
+      retain: true
+      topic: customstates/light/carport/state
+      payload: '0'
+  mode: single
+- id: '1692003402399'
+  alias: Suspend Volet - Cellier
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_cellier
+      input_select_mode_volet: input_select.modevolet_cellier
+- id: '1692005773413'
+  alias: Positionnement Volet - Cellier
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_cellier
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_cellier
+      input_select_mode_maison: input_select.homemodevolet_cellier
+      binary_sensor_soleil: binary_sensor.soleil_volets_est
+      binary_sensor_ensoleillement: binary_sensor.ensoleillement
+      binary_sensor_temp_ext: binary_sensor.temperature_exterieur
+      position_volet_auto_ete: 27
+      suspend_automation_name: automation.suspend_volet_cellier
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+- id: '1692131884499'
+  alias: Suspend Volet - Cuisine
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_cuisine
+      input_select_mode_volet: input_select.modevolet_cuisine
+- id: '1692131939945'
+  alias: Positionnement Volet - Cuisine
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_cuisine
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_cuisine
+      input_select_mode_maison: input_select.homemodevolet_cuisine
+      binary_sensor_soleil: binary_sensor.soleil_volets_sud
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_cuisine
+- id: '1692642507353'
+  alias: Suspend Volet - Chambre Arthur
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_chambre_arthur
+      input_select_mode_volet: input_select.modevolet_chambre_arthur
+- id: '1692642538953'
+  alias: Suspend Volet - Chambre Mathis
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_chambre_mathis
+      input_select_mode_volet: input_select.modevolet_chambre_mathis
+- id: '1692642562845'
+  alias: Suspend Volet - Chambre Parentale
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_chambre_parentale
+      input_select_mode_volet: input_select.modevolet_chambre_parentale
+- id: '1692642584966'
+  alias: Suspend Volet - Chambre Thibault
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_chambre_thibault
+      input_select_mode_volet: input_select.modevolet_chambre_thibault
+- id: '1692642614753'
+  alias: Suspend Volet - Porte Salle à manger
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_porte_salon
+      input_select_mode_volet: input_select.modevolet_porte_salon
+- id: '1692642642283'
+  alias: Suspend Volet - Salle à manger
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_salle_a_manger
+      input_select_mode_volet: input_select.modevolet_salle_a_manger
+- id: '1692642669879'
+  alias: Suspend Volet - Salle de bain
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_salle_de_bain
+      input_select_mode_volet: input_select.modevolet_salle_de_bain
+- id: '1692642688121'
+  alias: Suspend Volet - Salle d'eau
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_salle_eau
+      input_select_mode_volet: input_select.modevolet_salle_eau
+- id: '1692642729583'
+  alias: Suspend Volet - Salon
+  description: ''
+  use_blueprint:
+    path: guliangsi/suspend_volet.yaml
+    input:
+      cover_target: cover.volet_salon
+      input_select_mode_volet: input_select.modevolet_salon
+- id: '1692642911082'
+  alias: Positionnement Volet - Chambre Arthur
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_chambre_arthur
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_chambre_arthur
+      input_select_mode_maison: input_select.homemodevolet_chambre_arthur
+      binary_sensor_soleil: binary_sensor.soleil_volets_chambres_sud
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_chambre_arthur
+- id: '1692642981533'
+  alias: Positionnement Volet - Chambre Mathis
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_chambre_mathis
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_chambre_mathis
+      input_select_mode_maison: input_select.homemodevolet_chambre_mathis
+      binary_sensor_soleil: binary_sensor.soleil_volets_chambres_sud
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_chambre_mathis
+- id: '1692643043421'
+  alias: Positionnement Volet - Chambre Thibault
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_chambre_thibault
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_chambre_thibault
+      input_select_mode_maison: input_select.homemodevolet_chambre_thibault
+      binary_sensor_soleil: binary_sensor.soleil_volets_ouest
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_chambre_thibault
+- id: '1692643091054'
+  alias: Positionnement Volet - Salle de bain
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_salle_de_bain
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_salle_de_bain
+      input_select_mode_maison: input_select.homemodevolet_salle_de_bain
+      binary_sensor_soleil: binary_sensor.soleil_volets_nord
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_salle_de_bain
+- id: '1692643152035'
+  alias: Positionnement Volet - Salon
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_salon
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_salon
+      input_select_mode_maison: input_select.homemodevolet_salon
+      binary_sensor_soleil: binary_sensor.soleil_volets_nord
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_salon
+- id: '1692643225552'
+  alias: Positionnement Volet - Porte salle à manger
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_porte_salon
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_porte_salon
+      input_select_mode_maison: input_select.homemodevolet_porte_salon
+      binary_sensor_soleil: binary_sensor.soleil_volets_sud_ouest
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_porte_salle_a_manger
+- id: '1692643290696'
+  alias: Positionnement Volet - Salle à manger
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_salle_a_manger
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_salle_a_manger
+      input_select_mode_maison: input_select.homemodevolet_salle_a_manger
+      binary_sensor_soleil: binary_sensor.soleil_volets_sud
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_salle_a_manger
+- id: '1692643347215'
+  alias: Positionnement Volet - Salle d'eau
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_salle_eau
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_salle_eau
+      input_select_mode_maison: input_select.homemodevolet_salle_eau
+      binary_sensor_soleil: binary_sensor.soleil_volets_est
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_salle_d_eau
+- id: '1692643384946'
+  alias: Positionnement Volet - Chambre Parentale
+  description: ''
+  use_blueprint:
+    path: guliangsi/position_volets.yaml
+    input:
+      cover_target: cover.volet_chambre_parentale
+      input_select_mode_volets: input_select.modevolets
+      input_select_mode_volet: input_select.modevolet_chambre_parentale
+      input_select_mode_maison: input_select.homemodevolet_chambre_parentale
+      binary_sensor_soleil: binary_sensor.soleil_volets_sud
+      binary_sensor_alerte_haute_temperature: binary_sensor.vr_sun_hot_forecast
+      position_volet_auto_ete: 20
+      suspend_automation_name: automation.suspend_volet_chambre_parentale
+- id: '1692647387760'
+  alias: 'Volet Enfants - Mode Nuit +45 vacances '
+  description: ''
+  triggers:
+  - event: sunset
+    offset: +00:35:00
+    trigger: sun
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.workday_sensor
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.mode_vacances_enfants
+      state: 'on'
+  actions:
+  - data:
+      option: Nuit
+    target:
+      entity_id:
+      - input_select.homemodevolet_chambre_mathis
+      - input_select.homemodevolet_chambre_thibault
+      - input_select.homemodevolet_salle_de_bain
+      - input_select.homemodevolet_chambre_arthur
+    action: input_select.select_option
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_mathis'',
+        ''Desactive'') }}'
+    then:
+    - data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_chambre_mathis
+      action: input_select.select_option
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_thibault'',
+        ''Desactive'') }}'
+    then:
+    - data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_chambre_thibault
+      action: input_select.select_option
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_de_bain'', ''Desactive'')  }}'
+    then:
+    - data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salle_de_bain
+      action: input_select.select_option
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_arthur'',
+        ''Desactive'')  }}'
+    then:
+    - data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_chambre_arthur
+      action: input_select.select_option
+  mode: restart
+- id: '1692647695462'
+  alias: Volet - Mode Nuit 20h hors vacances
+  description: ''
+  trigger:
+  - platform: time
+    at: '20:00:00'
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.workday_sensor
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.mode_vacances_enfants
+      state: 'off'
+  action:
+  - service: input_select.select_option
+    data:
+      option: Nuit
+    target:
+      entity_id:
+      - input_select.homemodevolet_chambre_mathis
+      - input_select.homemodevolet_chambre_thibault
+      - input_select.homemodevolet_salle_de_bain
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_mathis'',
+        ''Desactive'') }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_chambre_mathis
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_thibault'',
+        ''Desactive'') }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_chambre_thibault
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_de_bain'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salle_de_bain
+  mode: restart
+- id: '1692647734658'
+  alias: 'Volet - Mode Nuit 21h hors vacances '
+  description: ''
+  trigger:
+  - platform: time
+    at: '21:00:00'
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.workday_sensor
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.mode_vacances_enfants
+      state: 'off'
+  action:
+  - service: input_select.select_option
+    data:
+      option: Nuit
+    target:
+      entity_id: input_select.homemodevolet_chambre_arthur
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_arthur'',
+        ''Desactive'') }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_chambre_arthur
+  mode: restart
+- id: '1692647803888'
+  alias: Volets Parentale - Mode Nuit +45
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: +00:30:00
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      option: Nuit
+    target:
+      entity_id:
+      - input_select.homemodevolet_chambre_parentale
+      - input_select.homemodevolet_salle_eau
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_eau'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salle_eau
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_parentale'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_chambre_parentale
+  mode: restart
+- id: '1692648006298'
+  alias: Volets PV - Mode Nuit +45
+  description: ''
+  triggers:
+  - event: sunset
+    offset: +00:45:00
+    trigger: sun
+  conditions: []
+  actions:
+  - data:
+      option: Nuit
+    target:
+      entity_id:
+      - input_select.homemodevolet_cellier
+      - input_select.homemodevolet_cuisine
+      - input_select.homemodevolet_porte_salon
+      - input_select.homemodevolet_salle_a_manger
+      - input_select.homemodevolet_salon
+    action: input_select.select_option
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cellier'', ''Desactive'')  }}'
+    then:
+    - data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_cellier
+      action: input_select.select_option
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cuisine'', ''Desactive'')  }}'
+    then:
+    - data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_cuisine
+      action: input_select.select_option
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_porte_salon'', ''Desactive'')  }}'
+    then:
+    - data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_porte_salon
+      action: input_select.select_option
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_a_manger'',
+        ''Desactive'')  }}'
+    then:
+    - data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salle_a_manger
+      action: input_select.select_option
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salon'', ''Desactive'')  }}'
+    then:
+    - data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salon
+      action: input_select.select_option
+  mode: restart
+- id: '1692648402424'
+  alias: Volets PV - Mode Jour 7h horsvacances
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:00:00
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.workday_sensor_j
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.mode_vacances_parents
+      state: 'off'
+  action:
+  - service: input_select.select_option
+    data:
+      option: Jour
+    target:
+      entity_id:
+      - input_select.homemodevolet_cellier
+      - input_select.homemodevolet_cuisine
+      - input_select.homemodevolet_porte_salon
+      - input_select.homemodevolet_salle_a_manger
+      - input_select.homemodevolet_salon
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cellier'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_cellier
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cuisine'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_cuisine
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_porte_salon'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_porte_salon
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_a_manger'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salle_a_manger
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salon'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salon
+  mode: restart
+- id: '1692648562724'
+  alias: Volets PV - Mode Jour +90m vacances
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: +01:30:00
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.workday_sensor_j
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.mode_vacances_parents
+      state: 'on'
+  action:
+  - service: input_select.select_option
+    data:
+      option: Jour
+    target:
+      entity_id:
+      - input_select.homemodevolet_cellier
+      - input_select.homemodevolet_cuisine
+      - input_select.homemodevolet_porte_salon
+      - input_select.homemodevolet_salle_a_manger
+      - input_select.homemodevolet_salon
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cellier'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_cellier
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cuisine'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_cuisine
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_porte_salon'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_porte_salon
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_a_manger'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salle_a_manger
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salon'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salon
+  mode: restart
+- id: '1692732021639'
+  alias: Volets Arthur - Jour semaine 06h30 horsvacances
+  description: ''
+  trigger:
+  - platform: time
+    at: 06:30:00
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.workday_sensor_j
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.mode_vacances_enfants
+      state: 'off'
+  action:
+  - service: input_select.select_option
+    data:
+      option: Jour
+    target:
+      entity_id:
+      - input_select.homemodevolet_chambre_arthur
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_arthur'',
+        ''Desactive'') and not is_state(''input_select.modevolet_chambre_arthur'',
+        ''Auto J/N'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_chambre_arthur
+  mode: restart
+- id: '1692732166256'
+  alias: Volets Mathis/Thibault - mode Jour 07h00 horsvacance
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:00:00
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.workday_sensor_j
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.mode_vacances_enfants
+      state: 'off'
+  action:
+  - service: input_select.select_option
+    data:
+      option: Jour
+    target:
+      entity_id:
+      - input_select.homemodevolet_chambre_mathis
+      - input_select.homemodevolet_chambre_thibault
+      - input_select.homemodevolet_salle_de_bain
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_mathis'',
+        ''Desactive'') }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_chambre_mathis
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_thibault'',
+        ''Desactive'') }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_chambre_thibault
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_de_bain'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{ states(''input_select.modevolets'') }}'
+      target:
+        entity_id: input_select.modevolet_salle_de_bain
+  mode: restart
+- id: '1692810635627'
+  alias: UpdateModeAutoEté_whenManuel
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: input_select.modevolets
+      state: Auto Eté
+  action:
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_cellier'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_est
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_cellier
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_cuisine'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_sud
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_cuisine
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_porte_salon'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_ouest
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_porte_salon
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_salle_a_manger'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_sud
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_salle_a_manger
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_salon'', ''Manuel'') }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_sud
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_salon
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_chambre_mathis'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_chambres_sud
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_chambre_mathis
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_chambre_thibault'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_ouest
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_chambre_thibault
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_salle_de_bain'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_nord
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_salle_de_bain
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_chambre_arthur'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_chambres_sud
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_chambre_arthur
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_salle_eau'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_est
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_salle_eau
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''input_select.modevolet_chambre_parentale'', ''Manuel'')
+        }}'
+    - condition: state
+      entity_id: binary_sensor.vr_sun_hot
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.soleil_volets_sud
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: Auto Eté
+      target:
+        entity_id: input_select.modevolet_chambre_parentale
+  mode: single
+- id: '1692957685137'
+  alias: UpdateModeJourSuiteParentale
+  description: Lorsque sélecteur Mode Jour Suite Parentale passe de off à on
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.mode_jour_suite_parentale
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      option: Jour
+    target:
+      entity_id:
+      - input_select.homemodevolet_chambre_parentale
+      - input_select.homemodevolet_salle_eau
+  mode: single
+- id: '1692957807892'
+  alias: UpdateModeJourPieceVie
+  description: Lorsque sélecteur Mode Jour Pièce de Vie passe de off à on
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.mode_jour_pv
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      option: Jour
+    target:
+      entity_id:
+      - input_select.homemodevolet_cuisine
+      - input_select.homemodevolet_cellier
+      - input_select.homemodevolet_porte_salon
+      - input_select.homemodevolet_salle_a_manger
+      - input_select.homemodevolet_salon
+  mode: single
+- id: '1692957919678'
+  alias: UpdateModeJourCoinEnfants
+  description: Lorsque sélecteur Mode Jour Coin Enfants passe de off à on
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.mode_jour_coin_enfants
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      option: Jour
+    target:
+      entity_id:
+      - input_select.homemodevolet_chambre_arthur
+      - input_select.homemodevolet_chambre_mathis
+      - input_select.homemodevolet_chambre_thibault
+      - input_select.homemodevolet_salle_de_bain
+  mode: single
+- id: '1692959862046'
+  alias: UpdateBooleanModeNuitSuiteParentale
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.homemodevolet_chambre_parentale
+      state: Nuit
+    - condition: state
+      entity_id: input_select.homemodevolet_salle_eau
+      state: Nuit
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.mode_jour_suite_parentale
+  mode: single
+- id: '1692959976800'
+  alias: UpdateBooleanModeNuitPV
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.homemodevolet_cellier
+      state: Nuit
+    - condition: state
+      entity_id: input_select.homemodevolet_cuisine
+      state: Nuit
+    - condition: state
+      entity_id: input_select.homemodevolet_salle_a_manger
+      state: Nuit
+    - condition: state
+      entity_id: input_select.homemodevolet_salon
+      state: Nuit
+    - condition: state
+      entity_id: input_select.homemodevolet_porte_salon
+      state: Nuit
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.mode_jour_pv
+  mode: single
+- id: '1692960038718'
+  alias: UpdateBooleanModeNuitCoinEnfants
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.homemodevolet_chambre_arthur
+      state: Nuit
+    - condition: state
+      entity_id: input_select.homemodevolet_chambre_mathis
+      state: Nuit
+    - condition: state
+      entity_id: input_select.homemodevolet_chambre_thibault
+      state: Nuit
+    - condition: state
+      entity_id: input_select.homemodevolet_salle_eau
+      state: Nuit
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.mode_jour_coin_enfants
+  mode: single
+- id: '1693428177976'
+  alias: Renew Let's Encrypt Certificate
+  description: ''
+  use_blueprint:
+    path: TJ-developer/renew_ssl_cert.yaml
+    input:
+      cert_expiry_sensor: sensor.domotique_desbois_dev_8123_expiration_du_certificat
+      renew_date: 15
+      time_to_check_cert: 03:00:00
+      send_notification: true
+      notification_device: cfae1ee25d8ba86fb2d221107ca6b5d5
+      notification_title: Certificat Home Assistant
+      notification_message: Renouvellement certificat Home Assistant
+- id: '1693730350188'
+  alias: BoutonSuiteParentaleModeJourSuiteParentale
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 378a5504b7db1494e97f3a8be6b27abc
+    type: action
+    subtype: single
+    trigger: device
+  conditions: []
+  actions:
+  - data:
+      option: Jour
+    target:
+      entity_id:
+      - input_select.homemodevolet_chambre_parentale
+      - input_select.homemodevolet_salle_eau
+    action: input_select.select_option
+  mode: restart
+- id: '1695323228226'
+  alias: AlarmeAcitveFermetureVolets
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - alarm_control_panel.alarmo
+    to: arming
+  condition: []
+  action:
+  - service: automation.turn_off
+    data:
+      stop_actions: true
+    target:
+      entity_id:
+      - automation.positionnement_volet_cellier
+      - automation.positionnement_volet_chambre_arthur
+      - automation.positionnement_volet_chambre_mathis
+      - automation.positionnement_volet_chambre_thibault
+      - automation.positionnement_volet_chambre_parentale
+      - automation.positionnement_volet_cuisine
+      - automation.positionnement_volet_porte_salle_a_manger
+      - automation.positionnement_volet_salle_a_manger
+      - automation.positionnement_volet_salle_d_eau
+      - automation.positionnement_volet_salle_de_bain
+      - automation.positionnement_volet_salon
+  - service: automation.turn_off
+    data:
+      stop_actions: true
+    target:
+      entity_id:
+      - automation.suspend_volet_cellier
+      - automation.suspend_volet_chambre_thibault
+      - automation.suspend_volet_chambre_arthur
+      - automation.suspend_volet_chambre_mathis
+      - automation.suspend_volet_chambre_parentale
+      - automation.suspend_volet_cuisine
+      - automation.suspend_volet_porte_salle_a_manger
+      - automation.suspend_volet_salle_a_manger
+      - automation.suspend_volet_salle_d_eau
+      - automation.suspend_volet_salle_de_bain
+      - automation.suspend_volet_salon
+  - service: cover.close_cover
+    data: {}
+    target:
+      entity_id:
+      - cover.volet_cellier
+      - cover.volet_chambre_arthur
+      - cover.volet_chambre_mathis
+      - cover.volet_cuisine
+      - cover.volet_chambre_thibault
+      - cover.volet_chambre_parentale
+      - cover.volet_porte_salon
+      - cover.volet_salle_a_manger
+      - cover.volet_salle_de_bain
+      - cover.volet_salle_eau
+      - cover.volet_salon
+  mode: single
+- id: '1695323459299'
+  alias: AlarmeDesactiveRepriseVolets
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - alarm_control_panel.alarmo
+    to: disarmed
+  condition: []
+  action:
+  - service: automation.turn_on
+    data: {}
+    target:
+      entity_id:
+      - automation.positionnement_volet_cellier
+      - automation.positionnement_volet_chambre_arthur
+      - automation.positionnement_volet_chambre_mathis
+      - automation.positionnement_volet_chambre_parentale
+      - automation.positionnement_volet_chambre_thibault
+      - automation.positionnement_volet_cuisine
+      - automation.positionnement_volet_porte_salle_a_manger
+      - automation.positionnement_volet_salle_a_manger
+      - automation.positionnement_volet_salle_d_eau
+      - automation.positionnement_volet_salle_de_bain
+      - automation.positionnement_volet_salon
+  - service: automation.trigger
+    data:
+      skip_condition: true
+    target:
+      entity_id:
+      - automation.positionnement_volet_cellier
+      - automation.positionnement_volet_chambre_arthur
+      - automation.positionnement_volet_chambre_mathis
+      - automation.positionnement_volet_chambre_parentale
+      - automation.positionnement_volet_chambre_thibault
+      - automation.positionnement_volet_cuisine
+      - automation.positionnement_volet_porte_salle_a_manger
+      - automation.positionnement_volet_salle_a_manger
+      - automation.positionnement_volet_salle_d_eau
+      - automation.positionnement_volet_salle_de_bain
+      - automation.positionnement_volet_salon
+  mode: single
+- id: '1695324041705'
+  alias: SmokeDetectedOuvertureVolets
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.detecteur_fumee_entree_smoke_detected
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  - platform: state
+    entity_id:
+    - binary_sensor.detecteur_fumee_cellier_smoke_detected
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  - platform: state
+    entity_id:
+    - binary_sensor.detecteur_fumee_enfants_smoke_detected
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  condition: []
+  action:
+  - parallel:
+    - service: notify.notify
+      data:
+        message: fumée detecté,ouverture des volets
+        title: Fumée detecté
+  mode: single
+- id: '1695918672283'
+  alias: VMC_Nettoyage_Filtre
+  description: ''
+  trigger:
+  - platform: time_pattern
+    hours: '00'
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: ' {{ ((as_timestamp(now()) - as_timestamp(states(''sensor.vmc_date_nettoyage_filtre'')))/86400)
+        | int > 89 }}'
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: input_select.vmc_filter
+        state: change
+  action:
+  - service: input_select.set_options
+    data:
+      options: clean
+    target:
+      entity_id: input_select.vmc_filter
+  mode: single
+- id: '1695918724518'
+  alias: VMC_Changement_Filtre
+  description: ''
+  trigger:
+  - platform: time_pattern
+    hours: '00'
+  condition:
+  - condition: template
+    value_template: '{{ ((as_timestamp(now()) - as_timestamp(states(''sensor.vmc_date_changement_filtre'')))/86400)
+      | int > 510 }}'
+  action:
+  - service: input_select.set_options
+    data:
+      options: change
+    target:
+      entity_id: input_select.vmc_filter
+  mode: single
+- id: '1695928156417'
+  alias: VMC_Filter_Change
+  description: ''
+  trigger: []
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      qos: '0'
+      retain: true
+      topic: maison/vmc/nettoyage_filtre
+      payload: '{   "date": "{{ now().date() }}" }'
+  - service: mqtt.publish
+    data:
+      qos: '0'
+      retain: true
+      topic: maison/vmc/change_filtre
+      payload: '{   "date": "{{ now().date() }}" }'
+  - service: input_select.set_options
+    data:
+      options: ok
+    target:
+      entity_id: input_select.vmc_filter
+  mode: single
+- id: '1695928194024'
+  alias: VMC_Clean_Filter
+  description: ''
+  trigger: []
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      qos: '0'
+      retain: true
+      topic: maison/vmc/nettoyage_filtre
+      payload: '{   "date": "{{ now().date() }}" }'
+  - service: input_select.set_options
+    data:
+      options: ok
+    target:
+      entity_id: input_select.vmc_filter
+  mode: single
+- id: '1703846955440'
+  alias: AlarmeDeclencheeOuvertureVolets
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - alarm_control_panel.alarmo
+    to: triggered
+  condition: []
+  action:
+  - service: cover.open_cover
+    target:
+      entity_id:
+      - cover.volet_cellier
+      - cover.volet_chambre_arthur
+      - cover.volet_chambre_mathis
+      - cover.volet_cuisine
+      - cover.volet_chambre_thibault
+      - cover.volet_chambre_parentale
+      - cover.volet_porte_salon
+      - cover.volet_salle_a_manger
+      - cover.volet_salle_de_bain
+      - cover.volet_salle_eau
+      - cover.volet_salon
+      device_id: []
+      area_id: []
+    data: {}
+  mode: single
+- id: '1704401766949'
+  alias: UnavailableAlarm
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.detecteur_ouverture_chambre_parentale_contact
+    - binary_sensor.detecteur_ouverture_salon_contact
+    - binary_sensor.detecteur_ouverture_cuisine_contact
+    - binary_sensor.detecteur_ouverture_porte_salon_contact
+    - binary_sensor.detecteur_ouverture_porte_entree_contact
+    - binary_sensor.detecteur_ouverture_sejour_droite_contact
+    - binary_sensor.detecteur_ouverture_sejour_gauche_contact
+    - binary_sensor.detecteur_ouverture_porte_service_garage_contact
+    - binary_sensor.presence_sensor_fp2_2080_presence_sensor_1
+    - binary_sensor.presence_sensor_fp2_2276_presence_sensor_1
+    - binary_sensor.detecteur_vibration_cave_vibration
+    - sensor.0x94deb8fffe712410_battery
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.mobile_app_iphone_guillaume
+    metadata: {}
+    data:
+      message: Un des composants de l'alarme est indisponible !
+      title: Critique - Alarme
+  mode: single
+- id: '1706640740763'
+  alias: Action iOS Portail
+  description: ''
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: Portail
+  condition: []
+  action:
+  - type: turn_on
+    device_id: ae2fda3b0846f4c309bb1a040d681ad1
+    entity_id: f4dad7cec53d2a683f68a654242b28e2
+    domain: switch
+  mode: single
+  initial_state: true
+- id: '1707218290061'
+  alias: ArrivedHome
+  description: ''
+  triggers:
+  - entity_id: device_tracker.device_tracker_iphone_de_guillaume
+    zone: zone.home
+    event: enter
+    trigger: zone
+  conditions: []
+  actions:
+  - type: turn_on
+    device_id: ae2fda3b0846f4c309bb1a040d681ad1
+    entity_id: f4dad7cec53d2a683f68a654242b28e2
+    domain: switch
+    enabled: false
+  - metadata: {}
+    data:
+      message: Désactivation de l'alarme
+      title: Happy to see you again !
+    action: notify.mobile_app_iphone_guillaume
+    enabled: false
+  - choose:
+    - conditions:
+      - condition: device
+        device_id: 936ff4a9c9462cd1f0da2b6d39a6f370
+        domain: alarm_control_panel
+        entity_id: 1dd77e4b566260931020c9795a7416d4
+        type: is_armed_away
+      sequence:
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - device_id: 936ff4a9c9462cd1f0da2b6d39a6f370
+        domain: alarm_control_panel
+        entity_id: 1dd77e4b566260931020c9795a7416d4
+        type: disarm
+        code: 0769
+      - metadata: {}
+        data:
+          message: Désactivation automatique de l'alarme car vous arrivez à la maison
+        action: notify.mobile_app_iphone_guillaume
+  mode: single
+- id: '1707218610936'
+  alias: QuitHome
+  description: ''
+  triggers:
+  - entity_id: device_tracker.device_tracker_iphone_de_guillaume
+    zone: zone.home
+    event: leave
+    trigger: zone
+  conditions: []
+  actions:
+  - metadata: {}
+    data:
+      message: Vous quittez la zone Maison
+      title: See you next!
+    action: notify.mobile_app_iphone_guillaume
+  mode: single
+- id: '1707606684107'
+  alias: UpdateModeVoletsParents
+  description: ''
+  trigger:
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: input_select.modevoletsparents
+  condition: []
+  action:
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_eau'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_salle_eau
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_parentale'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_chambre_parentale
+  mode: restart
+- id: '1707606974047'
+  alias: UpdateHomeModeVoletsParents
+  description: ''
+  trigger:
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: input_select.homemodevoletsparents
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_chambre_parentale
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_salle_eau
+  mode: restart
+- id: '1707640572066'
+  alias: UpdateModeVoletsEnfants
+  description: ''
+  trigger:
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: input_select.modevoletsenfants
+  condition: []
+  action:
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_de_bain'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_salle_de_bain
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_arthur'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_chambre_arthur
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_mathis'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_chambre_mathis
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_chambre_thibault'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_chambre_thibault
+  mode: restart
+- id: '1707640634286'
+  alias: UpdateHomeModeVoletsEnfants
+  description: ''
+  trigger:
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: input_select.homemodevoletsenfants
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_chambre_arthur
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_chambre_mathis
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_chambre_thibault
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_salle_de_bain
+  mode: restart
+- id: '1707640731864'
+  alias: UpdateModeVoletsPiecedeVie
+  description: ''
+  trigger:
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: input_select.modevoletspiecedevie
+  condition: []
+  action:
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cellier'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_cellier
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salon'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_salon
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_porte_salon'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_porte_salon
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_salle_a_manger'',
+        ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_salle_a_manger
+  - if:
+    - condition: template
+      value_template: '{{ not is_state(''input_select.modevolet_cuisine'', ''Desactive'')  }}'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{trigger.event.data.new_state.state}}'
+      target:
+        entity_id: input_select.modevolet_cuisine
+  mode: restart
+- id: '1707640790456'
+  alias: UpdateHomeModeVoletsPiecedeVie
+  description: ''
+  trigger:
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: input_select.homemodevoletspiecedevie
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_cellier
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_salon
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_porte_salon
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_salle_a_manger
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_cuisine
+  mode: restart
+- id: '1707641194345'
+  alias: UpdateHomeModeVoletsMaison
+  description: ''
+  trigger:
+  - platform: event
+    event_type: state_changed
+    event_data:
+      entity_id: input_select.homemodevolets
+  condition: []
+  action:
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_cellier
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_salon
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_porte_salon
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_salle_a_manger
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_cuisine
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_chambre_arthur
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_chambre_mathis
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_chambre_thibault
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_salle_eau
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_chambre_parentale
+  - service: input_select.select_option
+    data:
+      option: '{{trigger.event.data.new_state.state}}'
+    target:
+      entity_id: input_select.homemodevolet_salle_de_bain
+  mode: restart
+- id: '1720092608904'
+  alias: DisableAlarmMenage
+  description: ''
+  trigger:
+  - platform: time
+    at: '13:45:00'
+  condition:
+  - condition: time
+    weekday:
+    - mon
+  action:
+  - service: alarm_control_panel.alarm_disarm
+    metadata: {}
+    data:
+      code: 0669
+    target:
+      device_id: 936ff4a9c9462cd1f0da2b6d39a6f370
+  - service: notify.mobile_app_iphone_guillaume
+    metadata: {}
+    data:
+      message: Alarme desactivée (ménage prévu) !
+      title: Alarme - Ménage
+  mode: restart
+- id: '1744565156587'
+  alias: Ouvrir store banne nord
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 55a9a6a607f6422f03f0e2dd04c7d574
+    type: action
+    subtype: open_1
+    trigger: device
+  conditions: []
+  actions:
+  - device_id: 2efa90811fcfdbca55d384b87f272daa
+    domain: cover
+    entity_id: e4b6ab2c1aaf6483f1a4bdaddd00abcc
+    type: open
+  mode: single
+- id: '1744565186121'
+  alias: Fermer store banne nord
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 55a9a6a607f6422f03f0e2dd04c7d574
+    type: action
+    subtype: close_1
+    trigger: device
+  conditions: []
+  actions:
+  - device_id: 2efa90811fcfdbca55d384b87f272daa
+    domain: cover
+    entity_id: e4b6ab2c1aaf6483f1a4bdaddd00abcc
+    type: close
+  mode: single
+- id: '1745653625999'
+  alias: Stop Store Banne Nord
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 55a9a6a607f6422f03f0e2dd04c7d574
+    type: action
+    subtype: stop_1
+    trigger: device
+  conditions: []
+  actions:
+  - device_id: 2efa90811fcfdbca55d384b87f272daa
+    domain: cover
+    entity_id: e4b6ab2c1aaf6483f1a4bdaddd00abcc
+    type: stop
+  mode: single
+- id: '1746561924653'
+  alias: Telegram - Bilan - Notification production de jour
+  description: ''
+  triggers:
+  - at: '20:30:00'
+    trigger: time
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energy_production_daily
+        above: 1
+        below: 5
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.telegram_bot_8180449312_7673543932
+        data:
+          message: "-----------------------------------\n\nAujourd’hui la maison n'a
+            produit que *{{ states(\"sensor.energy_production_daily\") }} KWh* d'énergie
+            gratuite en raison du mauvais temps...\n\n☀️ Detail :   \n-----------------------------------\n
+            *+* Production Solaire : *{{ states(\"sensor.energy_production_daily\")
+            }} KWh*\n *+* Consommation Totale : *{{ states(\"sensor.energy_consumption_daily\")
+            }} KWh*\n *+* Consommation Solaire : *{{ (states('sensor.energy_production_daily')
+            | float(default=0) - states('sensor.energy_export_daily') | float(default=0))
+            | round(2)}} KWh*\n *+* Import réseau : *{{ states(\"sensor.energy_import_daily\")
+            }} KWh*\n *+* Retour réseau : *{{ states(\"sensor.energy_export_daily\")
+            }} KWh*\n *+* Autoconsomation : *{{ ((states('sensor.energy_production_daily')
+            | float(default=0) - states('sensor.energy_export_daily') | float(default=0))
+            / (states('sensor.energy_consumption_daily') | float(default=0))) | round(2)
+            *100  }} %*\n-----------------------------------"
+          title: ☀️ *Petite journée de production*
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energy_production_daily
+        above: 5
+        below: 10
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.telegram_bot_8180449312_7673543932
+        data:
+          message: "-----------------------------------\n\nAujourd’hui en raison de
+            la météo changeante, la maison n'a produit que *{{ states(\"sensor.energy_production_daily\")
+            }} KWh* d'énergie gratuite !\n\n\n☀️ Detail :   \n-----------------------------------\n
+            *+* Production Solaire : *{{ states(\"sensor.energy_production_daily\")
+            }} KWh*\n *+* Consommation Totale : *{{ states(\"sensor.energy_consumption_daily\")
+            }} KWh*\n *+* Consommation Solaire : *{{ (states('sensor.energy_production_daily')
+            | float(default=0) - states('sensor.energy_export_daily') | float(default=0))
+            | round(2)}} KWh*\n *+* Import réseau : *{{ states(\"sensor.energy_import_daily\")
+            }} KWh*\n *+* Retour réseau : *{{ states(\"sensor.energy_export_daily\")
+            }} KWh*\n *+* Autoconsomation : *{{ ((states('sensor.energy_production_daily')
+            | float(default=0) - states('sensor.energy_export_daily') | float(default=0))
+            / (states('sensor.energy_consumption_daily') | float(default=0))) | round(2)
+            *100  }} %*\n-----------------------------------"
+          title: ☀️ *Poduction solaire moyenne*
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energy_production_daily
+        above: 10
+      sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.telegram_bot_8180449312_7673543932
+        data:
+          message: "-----------------------------------\n\nAujourd’hui la maison a
+            produit *{{ states(\"sensor.energy_production_daily\") }} KWh* d'énergie
+            gratuite !\n\n☀️ Detail : \n-----------------------------------\n *+*
+            Production Solaire : *{{ states(\"sensor.energy_production_daily\") }}
+            KWh*\n *+* Consommation Totale : *{{ states(\"sensor.energy_consumption_daily\")
+            }} KWh*\n *+* Consommation Solaire : *{{ (states('sensor.energy_production_daily')
+            | float(default=0) - states('sensor.energy_export_daily') | float(default=0))
+            | round(2)}} KWh*\n *+* Import réseau : *{{ states(\"sensor.energy_import_daily\")
+            }} KWh*\n *+* Retour réseau : *{{ states(\"sensor.energy_export_daily\")
+            }} KWh*\n *+* Autoconsomation : *{{ ((states('sensor.energy_production_daily')
+            | float(default=0) - states('sensor.energy_export_daily') | float(default=0))
+            / (states('sensor.energy_consumption_daily') | float(default=0))) | round(2)
+            *100  }} %*\n-----------------------------------"
+          title: ☀️ *Excellente production solaire*
+  mode: single
+- id: '1747688367729'
+  alias: BoutonSuiteParentaleModeJourSalleEau
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 378a5504b7db1494e97f3a8be6b27abc
+    type: action
+    subtype: double
+    trigger: device
+  conditions: []
+  actions:
+  - data:
+      option: Jour
+    target:
+      entity_id: input_select.homemodevolet_salle_eau
+    action: input_select.select_option
+  mode: restart
+- id: '1750763108211'
+  alias: Frigate_Notification_Camera_cabane_front
+  description: ''
+  use_blueprint:
+    path: SgtBatten/Stable.yaml
+    input:
+      presence_filter:
+      - ''
+      camera:
+      - camera.cameracabanefront
+      notify_device: cfae1ee25d8ba86fb2d221107ca6b5d5
+      final_update: true
+      base_url: https://domotique.desbois.dev
+      review_severity:
+      - alert
+      critical: 'false'
+      alert_once: false
+      attachment_2: '{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg'
+      video: '{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/{{camera}}/clip.mp4'
+      icon: mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
+        else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
+      ios_live_view: camera.cabane_devant_fluide
+      notify_telegram_chat_id: '7673543932'
+      telegram_base_url: https://domotique.desbois.dev:8123
+      debug: false
+      redacted: false
+      message: '{{ label }}{{ '' was'' if type == ''end'' else '''' }} detected on
+        the {{ camera_name }} camera{{'' in the '' if after_zones|length}}{{ after_zones
+        | join('', '') | replace(''_'', '' '' ) | title }} at {{event[''after''][''start_time'']|timestamp_custom(''%H:%M'')}}.'
+      update_sub_label: false
+      attachment: '{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/snapshot.jpg'
+      zone_filter: false
+      tap_action: '{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/{{camera}}/master.m3u8'
+      url_1: '{{base_url}}/api/frigate{{client_id}}/notifications/{{id}}/{{camera}}/master.m3u8'
+- id: '1771238960494'
+  alias: Republish Jeedom jamming with retain
+  description: ''
+  triggers:
+  - trigger: mqtt
+    options:
+      topic: jeedom/cmd/event/1
+  conditions: []
+  actions:
+  - data:
+      topic: jeedom/cmd/event/1_retained
+      payload: '{{ trigger.payload }}'
+      retain: true
+    action: mqtt.publish
+  mode: queued
+- id: '1771244417961'
+  alias: AlarmeActivée_Enable_Frigate_notif
+  description: ''
+  triggers:
+  - device_id: 936ff4a9c9462cd1f0da2b6d39a6f370
+    domain: alarm_control_panel
+    entity_id: 1dd77e4b566260931020c9795a7416d4
+    type: armed_away
+    trigger: device
+  conditions: []
+  actions:
+  - action: automation.turn_on
+    metadata: {}
+    target:
+      entity_id: automation.frigate_notification_camera_cabane_front
+    data: {}
+  mode: single
+- id: '1771244501055'
+  alias: AlarmeDésactivée_Disable_Frigate_notif
+  description: ''
+  triggers:
+  - device_id: 936ff4a9c9462cd1f0da2b6d39a6f370
+    domain: alarm_control_panel
+    entity_id: 1dd77e4b566260931020c9795a7416d4
+    type: disarmed
+    trigger: device
+  conditions: []
+  actions:
+  - action: automation.turn_off
+    metadata: {}
+    target:
+      entity_id: automation.frigate_notification_camera_cabane_front
+    data:
+      stop_actions: true
+  mode: single
