@@ -52,7 +52,7 @@ jobs:
                 echo "$secret: /config/ssl/privkey.pem" >> secrets.yaml
                 ;;
       
-              trusted_proxies*)
+              *_ip)
                 # met une IP valide factice
                 echo "$secret: 127.0.0.1" >> secrets.yaml
                 ;;
