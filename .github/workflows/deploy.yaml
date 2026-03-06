@@ -1,0 +1,17 @@
+name: Deploy Home Assistant
+
+on:
+  push:
+
+jobs:
+  deploy:
+    runs-on: [githubrunner]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Snapshot VM
+        run: |
+          ssh proxmox \
+          "qm snapshot ${{ secrets.PROXMOX_VM_ID }} pre-gitops-$(date +%s)"
