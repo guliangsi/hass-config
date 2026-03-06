@@ -225,6 +225,4 @@ notify:
     chat_id: !secret telegram_chatid
     
 shell_command:
-  git_pull_config: >
-    cd /config &&
-    GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git pull
+  git_pull_config: 'cd /config; GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git pull'
