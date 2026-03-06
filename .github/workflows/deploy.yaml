@@ -5,7 +5,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: [githubrunner]
+    runs-on: [self-hosted]
 
     steps:
       - name: Checkout
