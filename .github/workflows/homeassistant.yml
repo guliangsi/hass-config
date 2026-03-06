@@ -2,7 +2,13 @@ name: Home Assistant CI
 
 on:
   push:
+    # Exclut la branche main
+    branches-ignore:
+      - main
   pull_request:
+    # Exclut la branche main
+    branches-ignore:
+      - main
 
 jobs:
   test-config:
