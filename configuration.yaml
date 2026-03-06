@@ -223,3 +223,6 @@ notify:
   - platform: telegram
     name: "guillaume"
     chat_id: !secret telegram_chatid
+    
+shell_command:
+  git_pull_config: "cd /config && git pull"
