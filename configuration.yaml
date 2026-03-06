@@ -20,8 +20,8 @@ http:
   ssl_key: /ssl/privkey.pem
   use_x_forwarded_for: true
   trusted_proxies:
-    - 192.168.1.122 ###(Nginx Proxy Manager LXC IP)###
-    - 192.168.1.127 ###(Cloudflare Zero Trust Tunnel)###
+    - !secret nginx_proxy_ip
+    - !secret cloudflare_tunnel_ip
 
 # Loads default set of integrations. Do not remove.
 default_config:
