@@ -44,6 +44,35 @@ jobs:
                 echo "$secret: localhost" >> secrets.yaml
                 ;;
       
+              ssl_certificate)
+                echo "$secret: /config/ssl/fullchain.pem" >> secrets.yaml
+                ;;
+      
+              ssl_key)
+                echo "$secret: /config/ssl/privkey.pem" >> secrets.yaml
+                ;;
+      
+              trusted_proxies*)
+                # met une IP valide factice
+                echo "$secret: 127.0.0.1" >> secrets.yaml
+                ;;
+      
+              home_lat)
+                echo "$secret: 32.400394" >> secrets.yaml
+                ;;
+      
+              home_lon)
+                echo "$secret: -0.123335" >> secrets.yaml
+                ;;
+      
+              home_radius)
+                echo "$secret: 250" >> secrets.yaml
+                ;;
+      
+              telegram_chat_id)
+                echo "$secret: 123456789" >> secrets.yaml
+                ;;
+      
               *_port)
                 echo "$secret: 1234" >> secrets.yaml
                 ;;
@@ -57,7 +86,7 @@ jobs:
                 ;;
       
               *)
-                echo "$secret: CI_DUMMY_VALUE" >> secrets.yaml
+                echo "$secret: 'dummy_value'" >> secrets.yaml
                 ;;
             esac
           done
