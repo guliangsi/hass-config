@@ -10,14 +10,14 @@ homeassistant:
 zone:
   # This will override the default home zone
   - name: Home
-    latitude: 46.400394
-    longitude: -0.199645
-    radius: 250
+    latitude: !secret home_lat
+    longitude: !secret home_lon
+    radius: !secret home_radius
     icon: mdi:home
 
 http:
-  ssl_certificate: /ssl/fullchain.pem
-  ssl_key: /ssl/privkey.pem
+  ssl_certificate: !secret ssl_cert
+  ssl_key: !secret ssl_key
   use_x_forwarded_for: true
   trusted_proxies:
     - !secret nginx_proxy_ip
@@ -222,4 +222,4 @@ utility_meter:
 notify:
   - platform: telegram
     name: "guillaume"
-    chat_id: 7673543932
+    chat_id: !secret telegram_chatid
