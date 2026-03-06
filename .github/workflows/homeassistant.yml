@@ -76,7 +76,7 @@ jobs:
                 ;;
       
               telegram_chat_id)
-                echo "$secret: 123456789" >> secrets.yaml
+                echo "$secret: 1234567890" >> secrets.yaml
                 ;;
       
               *_port)
