@@ -39,5 +39,5 @@ zone-log-*.csv
 *.sqlite
 
 # hacs
-www/community
+www/community/
 solcast_solar/
