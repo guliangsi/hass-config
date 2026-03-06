@@ -75,7 +75,7 @@ jobs:
                 echo "$secret: 250" >> secrets.yaml
                 ;;
       
-              telegram_chat_id)
+              telegram_chatid)
                 echo "$secret: 1234567890" >> secrets.yaml
                 ;;
       
