@@ -31,4 +31,4 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.HA_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{"event_type":"github_pull_config"}' \
-            https://domotique.desbois.dev:8123/api/events/github_pull_config
+            https://${{ secrets.HA_URL }}/api/events/github_pull_config
