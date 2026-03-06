@@ -13,5 +13,5 @@ jobs:
 
       - name: Snapshot VM
         run: |
-          ssh proxmox \
+          ssh ${{ secrets.PROXMOX_HOST }} \
           "qm snapshot ${{ secrets.PROXMOX_VM_ID }} pre-gitops-$(date +%s)"
