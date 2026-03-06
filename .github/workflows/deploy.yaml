@@ -13,6 +13,10 @@ jobs:
 
       - name: Snapshot VM
         run: |
-          ssh gitops@${{ secrets.PROXMOX_HOST }} \
-          "/usr/sbin/qm snapshot ${{ secrets.PROXMOX_VM_ID }} pre-gitops-$(date +%s)"
-          
+          SNAP="gitops-$(date +%s)"
+      
+          curl -k -X POST \
+          "https://${{ secrets.PROXMOX_HOST }}:8006/api2/json/nodes/proxmox/qemu/${{ secrets.PROXMOX_VM_ID }}/snapshot" \
+          -H "Authorization: PVEAPIToken=${{ secrets.PROXMOX_TOKEN_ID }}=${{ secrets.PROXMOX_TOKEN_SECRET }}" \
+          -d "snapname=$SNAP"
+                
