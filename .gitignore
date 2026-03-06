@@ -40,3 +40,4 @@ zone-log-*.csv
 
 # hacs
 www/community
+solcast_solar/
