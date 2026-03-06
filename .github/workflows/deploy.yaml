@@ -19,4 +19,5 @@ jobs:
           "https://${{ secrets.PROXMOX_HOST }}:8006/api2/json/nodes/proxmox/qemu/${{ secrets.PROXMOX_VM_ID }}/snapshot" \
           -H "Authorization: PVEAPIToken=${{ secrets.PROXMOX_TOKEN_ID }}=${{ secrets.PROXMOX_TOKEN_SECRET }}" \
           -d "snapname=$SNAP"
+          
                 
