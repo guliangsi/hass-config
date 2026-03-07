@@ -41,9 +41,11 @@ zone-log-*.csv
 # hacs
 www/
 solcast_solar/
+custom_components/
 
 # cache
 .cache/
 
 # images
 image/
+
