@@ -1,4 +1,4 @@
-name: Deploy Home Assistant
+name: Home Assistant CD
 
 on:
   pull_request:
