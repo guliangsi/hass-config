@@ -91,6 +91,27 @@ jobs:
             echo "Home Assistant failed to start correctly"
             exit 1
           fi
+
+      - name: Test Home Assistant automation
+        id: automation_test
+        continue-on-error: true
+        run: |
+          echo "Triggering automation test..."
+      
+          RESPONSE=$(curl -k -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.HA_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            https://${{ secrets.HA_URL }}/api/services/automation/trigger \
+            -d '{"entity_id":"automation.github_deploy_test"}')
+      
+          echo "Response code: $RESPONSE"
+      
+          if [ "$RESPONSE" != "200" ]; then
+            echo "Automation test failed"
+            exit 1
+          fi
+
       
       - name: Show Home Assistant error logs
         if: steps.healthcheck.outcome == 'failure'
