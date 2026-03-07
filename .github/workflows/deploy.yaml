@@ -33,6 +33,15 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"event_type":"github_pull_config"}' \
             https://${{ secrets.HA_URL }}/api/events/github_pull_config
+
+      - name: Restart Home Assistant
+        run: |
+          echo "Restarting Home Assistant..."
+      
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.HA_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            https://${{ secrets.HA_URL }}/api/services/homeassistant/restart
       
       - name: Detect restart and verify Home Assistant startup
         id: healthcheck
@@ -82,6 +91,15 @@ jobs:
             echo "Home Assistant failed to start correctly"
             exit 1
           fi
+      
+      - name: Show Home Assistant error logs
+        if: steps.healthcheck.outcome == 'failure'
+        run: |
+          echo "Fetching Home Assistant error logs..."
+      
+          curl -s \
+            -H "Authorization: Bearer ${{ secrets.HA_TOKEN }}" \
+            https://${{ secrets.HA_URL }}/api/error_log
           
       - name: Rollback VM snapshot
         if: steps.healthcheck.outcome == 'failure'
