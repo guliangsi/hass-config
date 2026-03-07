@@ -18,6 +18,7 @@ jobs:
       - name: Snapshot VM
         run: |
           SNAP="gitops-$(date +%s)"
+          echo "SNAP_NAME=$SNAP" >> $GITHUB_ENV
           
           curl -k -v -X POST \
           "https://${{ secrets.PROXMOX_HOST }}:8006/api2/json/nodes/proxmox/qemu/${{ secrets.PROXMOX_VM_ID }}/snapshot" \
@@ -32,3 +33,61 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"event_type":"github_pull_config"}' \
             https://${{ secrets.HA_URL }}/api/events/github_pull_config
+      
+      - name: Detect restart and verify Home Assistant startup
+        id: healthcheck
+        continue-on-error: true
+        run: |
+          echo "Detecting Home Assistant restart..."
+      
+          HA_URL="https://${{ secrets.HA_URL }}"
+          TOKEN="${{ secrets.HA_TOKEN }}"
+      
+          MAX_RETRIES=120
+          SLEEP_TIME=5
+      
+          went_down=false
+          came_back=false
+      
+          for i in $(seq 1 $MAX_RETRIES); do
+            STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" \
+              -H "Authorization: Bearer $TOKEN" \
+              $HA_URL/api/ || echo "000")
+      
+            echo "Attempt $i/$MAX_RETRIES - API status: $STATUS"
+      
+            if [ "$STATUS" != "200" ]; then
+              echo "Home Assistant is restarting..."
+              went_down=true
+            fi
+      
+            if [ "$went_down" = true ] && [ "$STATUS" = "200" ]; then
+              echo "Home Assistant API back online"
+      
+              STATES_STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" \
+                -H "Authorization: Bearer $TOKEN" \
+                $HA_URL/api/states)
+      
+              if [ "$STATES_STATUS" = "200" ]; then
+                echo "Home Assistant fully operational"
+                came_back=true
+                break
+              fi
+            fi
+      
+            sleep $SLEEP_TIME
+          done
+      
+          if [ "$came_back" != true ]; then
+            echo "Home Assistant failed to start correctly"
+            exit 1
+          fi
+          
+      - name: Rollback VM snapshot
+        if: steps.healthcheck.outcome == 'failure'
+        run: |
+          echo "Health check failed — rolling back VM"
+      
+          #curl -k -X POST \
+          #"https://${{ secrets.PROXMOX_HOST }}:8006/api2/json/nodes/proxmox/qemu/${{ secrets.PROXMOX_VM_ID }}/snapshot/${{ env.SNAP_NAME }}/rollback" \
+          #-H "Authorization: PVEAPIToken=${{ secrets.PROXMOX_TOKEN_ID }}=${{ secrets.PROXMOX_TOKEN_SECRET }}"
