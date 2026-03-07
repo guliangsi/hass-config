@@ -2161,3 +2161,22 @@
     data:
       stop_actions: true
   mode: single
+- id: '1772807315201'
+  alias: Git pull config depuis CI
+  description: ''
+  triggers:
+  - trigger: event
+    event_type: github_pull_config
+  conditions: []
+  actions:
+  - action: shell_command.git_pull_config
+    data: {}
+  mode: single
+- id: github_deploy_test
+  alias: GitHub Deploy Test
+  trigger: []
+  action:
+    - service: logbook.log
+      data:
+        name: "GitHub Deploy Test"
+        message: "Automation test executed"
