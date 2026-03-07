@@ -39,8 +39,11 @@ zone-log-*.csv
 *.sqlite
 
 # hacs
-www/community/
+www/
 solcast_solar/
 
 # cache
 .cache/
+
+# images
+image/
