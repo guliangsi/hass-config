@@ -49,3 +49,6 @@ custom_components/
 # images
 image/
 
+blueprints/
+scripts/
+themes/
