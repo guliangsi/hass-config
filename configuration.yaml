@@ -32,23 +32,6 @@ frontend:
     - /hacsfiles/lovelace-card-mod/card-mod.js
   themes: !include_dir_merge_named themes
 
-influxdb:
-  api_version: 2
-  host: !secret influxdb_host
-  port: !secret influxdb_port
-  ssl: false
-  token: !secret influxdb_token
-  organization: !secret influxdb_organization
-  bucket: !secret influxdb_bucket
-  include:
-    entities:
-      - sensor.freebox_download_speed
-      - sensor.freebox_upload_speed
-      - sensor.detecteur_carport_air_temperature
-      - sensor.detecteur_fumee_cellier_air_temperature
-      - sensor.detecteur_fumee_entree_air_temperature
-      - sensor.detecteur_vibration_cave_device_temperature
-
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
